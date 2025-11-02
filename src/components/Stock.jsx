@@ -7,48 +7,54 @@ const SHOW_CARD_NUMBER = 3;
 export default function Stock({ cards }) {
   const queueRef = useRef(new Queue());
   const [showCards, setShowCards] = useState([]);
+  const [queueSize, setQueueSize] = useState(0); // track queue size for display
 
+  // Initialize the queue whenever cards change
   useEffect(() => {
-
-    queueRef.current = new Queue();
+    const q = new Queue();
     for (const card of cards) {
-      queueRef.current.enqueue(card);
+      q.enqueue({ ...card, faceUp: false }); // clone card object for immutability
     }
-    rotate();
+    queueRef.current = q;
+    setQueueSize(q.size());
+    setShowCards([]);
   }, [cards]);
 
   function rotate() {
-    const CardsQueue = queueRef.current;
+    const q = queueRef.current;
 
-    if (showCards.length > 0) {
-      for (const card of showCards) {
-        CardsQueue.enqueue(card);
-      }
+    // Put previously shown cards back to the queue (face down)
+    for (const card of showCards) {
+      q.enqueue({ ...card, faceUp: false });
     }
 
-    const current = [];
+    // Draw new cards
+    const newShow = [];
     for (let i = 0; i < SHOW_CARD_NUMBER; i++) {
-      const card = CardsQueue.dequeue();
+      const card = q.dequeue();
       if (!card) break;
-      card.faceUp = true;
-      current.push(card);
+      newShow.push({ ...card, faceUp: true });
     }
 
-    setShowCards(current);
+    setShowCards(newShow);
+    setQueueSize(q.size());
   }
 
   return (
-    <div className="flex gap-5">
+    <div className="flex gap-5 items-center">
+      {/* Stock pile display */}
       <div className="w-20 h-28 bg-green-900 border-2 border-white rounded-lg flex items-center justify-center">
-        <span className="text-sm">Stock ({queueRef.current.items.length})</span>
+        <span className="text-sm">Stock ({queueSize})</span>
       </div>
 
+      {/* Currently shown cards */}
       <div className="flex gap-2">
         {showCards.map((card, i) => (
-          <CardView key={i} card={card} />
+          <CardView key={`${card.suit}-${card.rank}-${i}`} card={card} />
         ))}
       </div>
 
+      {/* Rotate button */}
       <button
         className="border p-2 h-10 rounded bg-yellow-600 cursor-pointer"
         onClick={rotate}

@@ -1,15 +1,15 @@
-import { useState } from "react";
 import "./index.css";
 import GameBoard from "./pages/GameBoard";
+import Solitaire from "./pages/Solitaire";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
-      <div className="min-h-screen bg-green-700 text-white font-sans">
-        <GameBoard />
-      </div>
+        <div className="min-h-screen bg-green-700 text-white font-sans">
+          <GameBoard />
+        </div>
+      {/* <Solitaire /> */}
     </>
   );
 }

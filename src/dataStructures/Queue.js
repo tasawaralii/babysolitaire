@@ -9,6 +9,16 @@ export default class Queue {
     if (this.items.length == 0) return undefined;
     return this.items.shift();
   }
-  peek() {return this.items[0]}
-  isEmpty() {return this.items.length == 0}
+  peek() {
+    return this.items[0];
+  }
+  size() {
+    return this.items.length; 
+  }
+  isEmpty() {
+    return this.items.length == 0;
+  }
+  toArray() {
+    return this.items
+  }
 }
