@@ -8,21 +8,24 @@ export default class LinkedList {
     const newNode = new Node(x);
     if (!this.head) {
       this.head = newNode;
+      this.tail = newNode
     } else {
       let current = this.head;
       while (current.next) {
         current = current.next;
       }
       current.next = newNode;
+      this.tail = newNode;
     }
     this.size++;
     return newNode;
   }
   appendAtFirst(x) {
-    console.log(x);
+    // console.log(x);
     const new_node = new Node(x);
     if (!this.head) {
       this.head = new_node;
+      this.tail = new_node
     } else {
       new_node.next = this.head;
       this.head = new_node;
@@ -56,6 +59,7 @@ export default class LinkedList {
     if (this.size == 1) {
       const head = this.head;
       this.head = null;
+      this.tail = null;
       return head;
     }
 
@@ -65,6 +69,7 @@ export default class LinkedList {
     }
     const node = current.next;
     current.next = null;
+    this.tail = current
     return node;
   }
 
@@ -82,6 +87,7 @@ export default class LinkedList {
     if (index == 0) {
       const head = this.head;
       this.head = null;
+      this.tail = null;
       return head;
     }
     if (index == this.size - 1) {
@@ -96,6 +102,7 @@ export default class LinkedList {
       count++;
     }
     prev.next = null;
+    this.tail = prev
     return current;
   }
   appendSubList(sHead) {
@@ -108,6 +115,10 @@ export default class LinkedList {
       current = current.next
     }
     current.next = sHead
+    while(sHead.next) {
+      sHead = sHead.next
+    }
+    this.tail = sHead
     return this.head
   }
 

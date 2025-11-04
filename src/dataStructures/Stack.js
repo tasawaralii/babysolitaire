@@ -4,8 +4,17 @@ export default class Stack {
     }
     push(item) {this.items.push(item)}
     pop() {return this.items.pop()}
-    peek() {return this.items[this.items.length - 1]}
+    peek() {
+        if(this.items.length == 0) return null
+        return this.items[this.items.length - 1]}
     isEmpty() {return this.items.length == 0}
     size() {return this.items.length}
     toArray() {return this.items}
+    copy() {
+        const newStack = new Stack();
+        for(const item of this.items) {
+            newStack.push(item)
+        }
+        return newStack
+    }
 }

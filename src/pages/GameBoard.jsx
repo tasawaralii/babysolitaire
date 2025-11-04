@@ -5,22 +5,23 @@ import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import LinkedList from "../dataStructures/LinkedList";
 import Stack from "../dataStructures/Stack";
 import Queue from "../dataStructures/Queue";
+import MoveValidator from "../game/MoveValidator";
 
 const SUITS = ["♠", "♥", "♦", "♣"];
-const VALUES = [
-  "A",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "J",
-  "Q",
-  "K",
+const RANKS = [
+  { value: "A", rank: 1 },
+  { value: "02", rank: 2 },
+  { value: "03", rank: 3 },
+  { value: "04", rank: 4 },
+  { value: "05", rank: 5 },
+  { value: "06", rank: 6 },
+  { value: "07", rank: 7 },
+  { value: "08", rank: 8 },
+  { value: "09", rank: 9 },
+  { value: "10", rank: 10 },
+  { value: "J", rank: 11 },
+  { value: "Q", rank: 12 },
+  { value: "K", rank: 13 },
 ];
 
 const Card = ({ card }) => {
@@ -30,7 +31,7 @@ const Card = ({ card }) => {
         card.faceUp ? "cursor-pointer" : ""
       } text-center text-sm ${
         card.faceUp
-          ? `bg-white text-${card.color == "red" ? "red-400" : "black"}`
+          ? `bg-white ${card.color == "red" ? "text-red-700" : "text-black"}`
           : "bg-blue-900 text-blue-900"
       }`}
     >
@@ -38,10 +39,10 @@ const Card = ({ card }) => {
     </div>
   );
 };
-const Pile = ({pile, pileIdx}) => {
+const Pile = ({ pile, pileIdx }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `pile-${pileIdx}`,
-    data: { type: "pile", index: pileIdx },
+    data: { destination: "pile", destinationIdx: pileIdx },
   });
 
   return (
@@ -53,20 +54,64 @@ const Pile = ({pile, pileIdx}) => {
     >
       <span className="text-xs mb-1">Pile {pileIdx}</span>
       <div className="flex flex-col space-y-1">
-        {pile.toArray().map((card, j) => (
-          card.faceUp ? 
-          <CardDraggable key={j} card={card} cardIdx={j} pileIndex={pileIdx} />
-          : <Card key={j} card={card} />
-        ))}
+        {pile
+          .toArray()
+          .map((card, j) =>
+            card.faceUp ? (
+              <CardDraggable
+                key={j}
+                cardSource={"pile"}
+                card={card}
+                cardIdx={j}
+                sourceIdx={pileIdx}
+              />
+            ) : (
+              <Card key={j} card={card} />
+            )
+          )}
       </div>
     </div>
   );
-}
+};
 
-const CardDraggable = ({card, pileIndex, cardIdx}) => {
+const Foundation = ({ index, suit, foundation }) => {
+  // if (foundation.size() > 0) {
+  //   console.log(foundation.peek());
+  // }
+
+  const { isOver, setNodeRef } = useDroppable({
+    id: `foundation-${suit}`,
+    data: {
+      destination: "foundation",
+      destinationIdx: index,
+    },
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`w-20 ${
+        isOver ? "bg-yellow-900" : "bg-green-900"
+      } h-28 border-2 border-white rounded-lg flex flex-col items-center justify-center`}
+    >
+      {foundation.size() > 0 && (
+        <CardDraggable
+          card={foundation.peek()}
+          cardSource={"foundation"}
+          sourceIdx={index}
+          cardIdx={foundation.size() - 1}
+        />
+      )}
+      <span className={`text-2xl`}>{suit}</span>
+      <span className="text-xs mt-1">{foundation.size()}</span>
+    </div>
+  );
+};
+
+const CardDraggable = ({ card, cardSource, sourceIdx, cardIdx }) => {
+  if (!card) return null;
   const { setNodeRef, attributes, listeners, transform } = useDraggable({
     id: `card-${card.id}`,
-    data: { source: "pile", index: pileIndex, cardIdx },
+    data: { cardSource, sourceIdx, cardIdx, card },
   });
   const style = transform
     ? {
@@ -78,7 +123,7 @@ const CardDraggable = ({card, pileIndex, cardIdx}) => {
       <Card card={card} />
     </div>
   );
-}
+};
 
 const GameBoard = () => {
   const [tableaus, setTableaus] = useState([
@@ -110,13 +155,14 @@ const GameBoard = () => {
     const cards = [];
     const deck = new Stack();
     SUITS.forEach((suit) => {
-      VALUES.forEach((value) => {
+      RANKS.forEach((value) => {
         cards.push({
           suit,
-          value,
+          value: value.value,
+          rank: value.rank,
           faceUp: false,
           color: suit == "♦" || suit == "♥" ? "red" : "black",
-          id: `${suit}-${value}`,
+          id: `${suit}-${value.value}`,
         });
       });
     });
@@ -141,13 +187,10 @@ const GameBoard = () => {
     for (let i = 0; i < 7; i++) {
       for (let j = i; j < 7; j++) {
         const card = deck.pop();
-        // console.log(deck.size())
         card.faceUp = i === j;
         newTableau[j].appendAtLast(card);
       }
     }
-
-    // console.log()
 
     const newStock = new Queue();
 
@@ -155,15 +198,21 @@ const GameBoard = () => {
       newStock.enqueue(card);
     });
 
+    const newFoundations = [new Stack(), new Stack(), new Stack(), new Stack()];
+    const newWaste = new Queue()
+
+    setWaste(newWaste)
+    setCurrentWindow([])
+    setFoundations(newFoundations)
     setTableaus(newTableau);
     setStock(newStock);
   }
 
-  function moveCard(fromT, toT, cardIdx) {
+  function moveCardBetweenPiles(fromT, toT, cardIdx) {
     const newTableau = [...tableaus];
 
-    const fromPile = newTableau[fromT].clone()
-    const toPile = newTableau[toT].clone()
+    const fromPile = newTableau[fromT].clone();
+    const toPile = newTableau[toT].clone();
 
     const chain = fromPile.removeSubList(cardIdx);
     const lastCard = fromPile.getLast();
@@ -177,6 +226,25 @@ const GameBoard = () => {
     newTableau[toT] = toPile;
 
     setTableaus(newTableau);
+  }
+
+  function insertInPileState(index, sublist) {
+    const newTableau = [...tableaus];
+    const newPile = newTableau[index].clone();
+    newPile.appendSubList(sublist);
+    newTableau[index] = newPile;
+    setTableaus(newTableau);
+  }
+
+  function insertToFoundationState(index, card) {
+    card.faceUp = true;
+    setFoundations((prevFoundations) => {
+      const newFoundations = [...prevFoundations];
+      const changedFoundation = newFoundations[index].copy();
+      changedFoundation.push(card);
+      newFoundations[index] = changedFoundation;
+      return newFoundations;
+    });
   }
 
   function draw() {
@@ -206,17 +274,18 @@ const GameBoard = () => {
       currentWindow.forEach((card) => newWaste.enqueue(card));
     }
     let newCurrentWindow = [];
-    let newStock = stock;
-    if (newStock.size() > 0) {
-      if (newStock.size() >= 3) {
-        for (let i = 0; i < 3; i++) {
-          const card = newStock.dequeue();
-          card.faceUp = true;
-          newCurrentWindow.push(card);
-        }
+    let newStock = stock.clone();
+
+    if (newStock.size() >= 3) {
+      for (let i = 0; i < 3; i++) {
+        const card = newStock.dequeue();
+        card.faceUp = true;
+        newCurrentWindow.push(card);
       }
     } else {
-      newCurrentWindow = stock.toArray();
+      newCurrentWindow = newStock.toArray();
+      for(let i = 0; i < newCurrentWindow.length; i++)
+        newCurrentWindow[i].faceUp = true
       newStock = new Queue();
     }
 
@@ -226,15 +295,153 @@ const GameBoard = () => {
   }
 
   const cardDragStart = (event) => {
-    // console.log(event.active.data.current);
+    // console.log(event.active);
+  };
+
+  const removeFromPileState = (pileIdx, cardIdx) => {
+    const newTableau = [...tableaus];
+
+    const fromPile = newTableau[pileIdx].clone();
+    const chain = fromPile.removeSubList(cardIdx);
+
+    const lastCard = fromPile.getLast();
+
+    if (lastCard) {
+      lastCard.data.faceUp = true;
+    }
+
+    newTableau[pileIdx] = fromPile;
+    setTableaus(newTableau);
+    return chain;
+  };
+  const removeFromFoundationState = (index) => {
+    let card;
+    setFoundations((prevFoundations) => {
+      const newFoundations = [...prevFoundations];
+      const newFoundation = newFoundations[index].copy();
+      card = newFoundation.pop();
+      newFoundations[index] = newFoundation;
+      return newFoundations;
+    });
+    return card;
+  };
+  const removeFromWasteState = (index) => {
+    const newCurrentWindow = [...currentWindow];
+    const newWaste = waste.clone();
+    const card = newCurrentWindow[index];
+    newCurrentWindow.splice(index, 1);
+    const newCard = newWaste.dequeue();
+    if (newCard) {
+      newCurrentWindow.unshift(newCard);
+      // console.log(newCurrentWindow);
+    }
+    setCurrentWindow(newCurrentWindow);
+    setWaste(newWaste);
+    return card;
+  };
+
+  const peekPileCard = (pileIndex) => {
+    const destinationCardNode = tableaus[pileIndex].getLast();
+    let destinationCard;
+    if (!destinationCardNode) {
+      destinationCard = null;
+    } else {
+      destinationCard = destinationCardNode.data;
+    }
+    return destinationCard;
+  };
+
+  const moveCard = (
+    source,
+    destination,
+    sourceIdx,
+    destinationIdx,
+    cardIdx,
+    sourceCard
+  ) => {
+    if (source == "pile" && destination == "pile") {
+      const destinationCard = peekPileCard(destinationIdx);
+      if (MoveValidator.toPile(sourceCard, destinationCard)) {
+        moveCardBetweenPiles(sourceIdx, destinationIdx, cardIdx);
+      } else {
+        console.log("Wrong Move");
+      }
+    } else if (source == "pile" && destination == "foundation") {
+      // console.log(foundations[destinationIdx].peek());
+      if (
+        MoveValidator.toFoundation(
+          SUITS[destinationIdx],
+          sourceCard,
+          foundations[destinationIdx].peek()
+        )
+      ) {
+        insertToFoundationState(
+          destinationIdx,
+          removeFromPileState(sourceIdx, cardIdx).data
+        );
+      } else {
+        console.log("Wrong Move");
+      }
+    } else if (source == "waste" && destination == "pile") {
+      if (MoveValidator.toPile(sourceCard, peekPileCard(destinationIdx))) {
+        const card = removeFromWasteState(cardIdx);
+        const list = new LinkedList();
+        list.appendAtFirst(card);
+        insertInPileState(destinationIdx, list.head);
+      } else {
+        console.log("Wrong Move");
+      }
+    } else if (source == "waste" && destination == "foundation") {
+      if (
+        MoveValidator.toFoundation(
+          SUITS[destinationIdx],
+          sourceCard,
+          foundations[destinationIdx].peek()
+        )
+      ) {
+        const card = removeFromWasteState(cardIdx);
+        insertToFoundationState(destinationIdx, card);
+      }
+    } else if (source == "foundation" && destination == "pile") {
+
+      if(MoveValidator.toPile(sourceCard, peekPileCard(destinationIdx))) {
+        const card = removeFromFoundationState(sourceIdx);
+        insertInPileState(destinationIdx, new LinkedList().appendAtFirst(card));
+      }
+
+    }
+    //  else if (source == "foundation" && destination == "foundation") {
+    //   const card = removeFromFoundationState(sourceIdx);
+    //   insertToFoundationState(destinationIdx, card);
+    // }
   };
 
   const cardDragEnd = (event) => {
-    const sourcePileIdx = event.active.data.current.index;
+    if (!event.over) return null;
+
+    const sourceCard = event.active.data.current.card;
+    const source = event.active.data.current.cardSource;
     const cardIdx = event.active.data.current.cardIdx;
-    const destinationPileIdx = event.over.data.current.index;
-    // console.log(sourcePileIdx + cardIdx, destinationPileIdx);
-    moveCard(sourcePileIdx,destinationPileIdx,cardIdx)
+    const sourceIdx = event.active.data.current.sourceIdx;
+
+    const destination = event.over.data.current.destination;
+    const destinationIdx = event.over.data.current.destinationIdx;
+
+    if (source == destination && sourceIdx == destinationIdx) return null;
+
+    moveCard(
+      source,
+      destination,
+      sourceIdx,
+      destinationIdx,
+      cardIdx,
+      sourceCard
+    );
+    // console.log(
+    //   `Card : ${cardIdx} ${cardId}\n` +
+    //     `Source : ${source}, Index ${sourceIdx}\n` +
+    //     `Destination: ${destination}, Index ${destinationIdx}`
+    // );
   };
 
   return (
@@ -249,35 +456,43 @@ const GameBoard = () => {
               onClick={draw}
             >
               <span className="text-sm">
-                {stock.size() > 0 ? `Stock ${stock.size()}` : "REDEAL"}
+                <p>{stock.size() > 0 ? `Stock ${stock.size()}` : "REDEAL"}</p>
+                <p>{`Waste ${waste.size()}`}</p>
+                <p>{`Current ${currentWindow.length}`}</p>
               </span>
             </div>
             <div className="flex gap-2">
               {currentWindow.map((card, i) => (
-                <Card key={i} card={card} />
+                <CardDraggable
+                  key={i}
+                  card={card}
+                  cardSource={"waste"}
+                  sourceIdx={i}
+                  cardIdx={i}
+                />
               ))}
             </div>
           </div>
 
           <div className="flex space-x-3">
             {foundations.map((foundation, i) => {
+              // console.log(foundation.peek())
               return (
-                <div
+                <Foundation
                   key={i}
-                  className="w-20 h-28 bg-green-900 border-2 border-white rounded-lg flex flex-col items-center justify-center"
-                >
-                  <span className={`text-2xl`}>{SUITS[i]}</span>
-                  <span className="text-xs mt-1">{0}</span>
-                </div>
+                  index={i}
+                  suit={SUITS[i]}
+                  foundation={foundation}
+                />
               );
             })}
           </div>
         </div>
 
         <div className="flex justify-center space-x-3 mt-8">
-          {tableaus.map((pile, i) => 
+          {tableaus.map((pile, i) => (
             <Pile key={i} pile={pile} pileIdx={i} />
-          )}
+          ))}
         </div>
 
         <Controls reset={() => handleNewGame()} />

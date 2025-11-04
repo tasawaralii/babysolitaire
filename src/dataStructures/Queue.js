@@ -21,4 +21,11 @@ export default class Queue {
   toArray() {
     return this.items
   }
+  clone() {
+    const newQueue = new Queue()
+    for(const item of this.items) {
+      newQueue.enqueue(item)
+    }
+    return newQueue
+  }
 }
