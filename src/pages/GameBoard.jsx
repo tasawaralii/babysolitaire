@@ -162,8 +162,7 @@ const GameBoard = () => {
       stock: stock.clone(),
       waste: waste.clone(),
       currentWindow: [...currentWindow],
-      score,
-      moves
+      score
     };
   }
 
@@ -174,7 +173,6 @@ const GameBoard = () => {
     setWaste(snapshot.waste.clone());
     setCurrentWindow([...snapshot.currentWindow]);
     setScore(snapshot.score);
-    setMoves(snapshot.moves)
   }
   
   function saveUndoRedoStack() {
@@ -194,6 +192,7 @@ const GameBoard = () => {
     const newRedoStack = redoStack.copy();
     newRedoStack.push(currentState);
 
+    setMoves((prevMoves) => prevMoves + 1)
     setUndoStack(newUndoStack)
     setRedoStack(newRedoStack)
     loadGameSnapshot(prevState)
@@ -207,6 +206,7 @@ const GameBoard = () => {
     const newUndoStack = undoStack.copy();
     newUndoStack.push(currentState);
 
+    setMoves((prevMoves) => prevMoves + 1)
     setUndoStack(newUndoStack)
     setRedoStack(newRedoStack)
     loadGameSnapshot(nextState)
