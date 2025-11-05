@@ -147,8 +147,81 @@ const GameBoard = () => {
   const [currentWindow, setCurrentWindow] = useState([]);
   const [waste, setWaste] = useState(new Queue());
 
+  const [time, setTime] = useState(0);
+  const [score, setScore] = useState(0);
+  const [moves, setMoves] = useState(0);
+
+  const [undoStack, setUndoStack] = useState(new Stack());
+  const [redoStack, setRedoStack] = useState(new Stack());
+
+
+  function getGameSnapshot() {
+    return {
+      tableaus: tableaus.map((pile) => pile.clone()),
+      foundations: foundations.map((f) => f.copy()),
+      stock: stock.clone(),
+      waste: waste.clone(),
+      currentWindow: [...currentWindow],
+      score,
+      moves
+    };
+  }
+
+  function loadGameSnapshot(snapshot) {
+    setTableaus(snapshot.tableaus.map((p) => p.clone()));
+    setFoundations(snapshot.foundations.map((f) => f.copy()));
+    setStock(snapshot.stock.clone());
+    setWaste(snapshot.waste.clone());
+    setCurrentWindow([...snapshot.currentWindow]);
+    setScore(snapshot.score);
+    setMoves(snapshot.moves)
+  }
+  
+  function saveUndoRedoStack() {
+    const currentState = getGameSnapshot();
+    const newUndoStack = undoStack.copy()
+    newUndoStack.push(currentState);
+
+    setUndoStack(newUndoStack);
+    setRedoStack(new Stack())
+  }
+
+  function handleUndo() {
+    if(undoStack.size() == 0) return null;
+    const newUndoStack = undoStack.copy();
+    const prevState = newUndoStack.pop();
+    const currentState = getGameSnapshot();
+    const newRedoStack = redoStack.copy();
+    newRedoStack.push(currentState);
+
+    setUndoStack(newUndoStack)
+    setRedoStack(newRedoStack)
+    loadGameSnapshot(prevState)
+  }
+
+  function handleRedo() {
+    if(redoStack.size() == 0) return null;
+    const newRedoStack = redoStack.copy();
+    const nextState = newRedoStack.pop();
+    const currentState = getGameSnapshot();
+    const newUndoStack = undoStack.copy();
+    newUndoStack.push(currentState);
+
+    setUndoStack(newUndoStack)
+    setRedoStack(newRedoStack)
+    loadGameSnapshot(nextState)
+  }
+
+
   useEffect(() => {
     handleNewGame();
+
+    const timeInterval = setInterval(() => {
+      setTime((prev) => prev + 1)
+    },1000)
+
+    return () => clearInterval(timeInterval);
+
   }, []);
 
   function handleNewGame() {
@@ -199,13 +272,15 @@ const GameBoard = () => {
     });
 
     const newFoundations = [new Stack(), new Stack(), new Stack(), new Stack()];
-    const newWaste = new Queue()
+    const newWaste = new Queue();
 
-    setWaste(newWaste)
-    setCurrentWindow([])
-    setFoundations(newFoundations)
+    setWaste(newWaste);
+    setCurrentWindow([]);
+    setFoundations(newFoundations);
     setTableaus(newTableau);
     setStock(newStock);
+    setTime(0)
+    setScore(0)
   }
 
   function moveCardBetweenPiles(fromT, toT, cardIdx) {
@@ -248,6 +323,11 @@ const GameBoard = () => {
   }
 
   function draw() {
+
+    if(currentWindow.length == 0 && stock.size() == 0 && waste.size() == 0) return null;
+
+    saveUndoRedoStack()
+
     if (stock.size() == 0) {
       if (waste.size() > 0) {
         const newStock = new Queue();
@@ -284,8 +364,8 @@ const GameBoard = () => {
       }
     } else {
       newCurrentWindow = newStock.toArray();
-      for(let i = 0; i < newCurrentWindow.length; i++)
-        newCurrentWindow[i].faceUp = true
+      for (let i = 0; i < newCurrentWindow.length; i++)
+        newCurrentWindow[i].faceUp = true;
       newStock = new Queue();
     }
 
@@ -350,71 +430,93 @@ const GameBoard = () => {
     }
     return destinationCard;
   };
-
-  const moveCard = (
+  function moveCardToDestination(
     source,
     destination,
     sourceIdx,
     destinationIdx,
     cardIdx,
     sourceCard
-  ) => {
-    if (source == "pile" && destination == "pile") {
-      const destinationCard = peekPileCard(destinationIdx);
-      if (MoveValidator.toPile(sourceCard, destinationCard)) {
-        moveCardBetweenPiles(sourceIdx, destinationIdx, cardIdx);
-      } else {
-        console.log("Wrong Move");
-      }
-    } else if (source == "pile" && destination == "foundation") {
-      // console.log(foundations[destinationIdx].peek());
-      if (
-        MoveValidator.toFoundation(
-          SUITS[destinationIdx],
-          sourceCard,
-          foundations[destinationIdx].peek()
-        )
-      ) {
-        insertToFoundationState(
-          destinationIdx,
-          removeFromPileState(sourceIdx, cardIdx).data
-        );
-      } else {
-        console.log("Wrong Move");
-      }
-    } else if (source == "waste" && destination == "pile") {
-      if (MoveValidator.toPile(sourceCard, peekPileCard(destinationIdx))) {
-        const card = removeFromWasteState(cardIdx);
-        const list = new LinkedList();
-        list.appendAtFirst(card);
-        insertInPileState(destinationIdx, list.head);
-      } else {
-        console.log("Wrong Move");
-      }
-    } else if (source == "waste" && destination == "foundation") {
-      if (
-        MoveValidator.toFoundation(
-          SUITS[destinationIdx],
-          sourceCard,
-          foundations[destinationIdx].peek()
-        )
-      ) {
-        const card = removeFromWasteState(cardIdx);
-        insertToFoundationState(destinationIdx, card);
-      }
-    } else if (source == "foundation" && destination == "pile") {
+  ) {
 
-      if(MoveValidator.toPile(sourceCard, peekPileCard(destinationIdx))) {
-        const card = removeFromFoundationState(sourceIdx);
-        insertInPileState(destinationIdx, new LinkedList().appendAtFirst(card));
-      }
+    let pointsAwarded = 0;
 
+    switch (source) {
+      case "pile":
+        if (destination === "pile") {
+          const destinationCard = peekPileCard(destinationIdx);
+          if (MoveValidator.toPile(sourceCard, destinationCard)) {
+            moveCardBetweenPiles(sourceIdx, destinationIdx, cardIdx);
+            pointsAwarded = 10;
+
+          } else {
+            console.log("Invalid move to pile");
+          }
+        } else if (destination === "foundation") {
+          if (
+            MoveValidator.toFoundation(
+              SUITS[destinationIdx],
+              sourceCard,
+              foundations[destinationIdx].peek()
+            )
+          ) {
+            insertToFoundationState(
+              destinationIdx,
+              removeFromPileState(sourceIdx, cardIdx).data
+            );
+            pointsAwarded = 20;
+          }
+        }
+        break;
+      case "waste":
+        if (destination === "pile") {
+          if (MoveValidator.toPile(sourceCard, peekPileCard(destinationIdx))) {
+            const card = removeFromWasteState(cardIdx);
+            const list = new LinkedList();
+            list.appendAtFirst(card);
+            insertInPileState(destinationIdx, list.head);
+            pointsAwarded = 5;
+          }
+        } else if (destination === "foundation") {
+          if (
+            MoveValidator.toFoundation(
+              SUITS[destinationIdx],
+              sourceCard,
+              foundations[destinationIdx].peek()
+            )
+          ) {
+            const card = removeFromWasteState(cardIdx);
+            insertToFoundationState(destinationIdx, card);
+            pointsAwarded = 15;
+          }
+        }
+        break;
+      case "foundation":
+        if (destination === "pile") {
+          if (MoveValidator.toPile(sourceCard, peekPileCard(destinationIdx))) {
+            const card = removeFromFoundationState(sourceIdx);
+            insertInPileState(
+              destinationIdx,
+              new LinkedList().appendAtFirst(card)
+            );
+
+            pointsAwarded = -5;
+          }
+        }
+        break;
+      default:
+        console.log("Invalid move");
     }
-    //  else if (source == "foundation" && destination == "foundation") {
-    //   const card = removeFromFoundationState(sourceIdx);
-    //   insertToFoundationState(destinationIdx, card);
-    // }
-  };
+
+    if(pointsAwarded != 0) {
+
+      saveUndoRedoStack()
+
+      setScore((prevScores) => prevScores + pointsAwarded)
+      setMoves((prevMoves) => prevMoves + 1)
+    }
+
+  }
 
   const cardDragEnd = (event) => {
     if (!event.over) return null;
@@ -429,7 +531,7 @@ const GameBoard = () => {
 
     if (source == destination && sourceIdx == destinationIdx) return null;
 
-    moveCard(
+    moveCardToDestination(
       source,
       destination,
       sourceIdx,
@@ -495,7 +597,18 @@ const GameBoard = () => {
           ))}
         </div>
 
-        <Controls reset={() => handleNewGame()} />
+        <Controls
+          reset={() => handleNewGame()}
+          handleRedo={handleRedo}
+          handleUndo={handleUndo}
+          disableRedo={redoStack.size() === 0}
+          disableUndo={undoStack.size() === 0}
+        />
+        <div className="flex gap-3">
+          Time: {Math.floor(time / 60)}:{("0" + (time % 60)).slice(-2)}
+          <div>Moves : {moves}</div>
+          <div>Scores : {score}</div>
+        </div>
       </div>
     </DndContext>
   );
