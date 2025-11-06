@@ -4,53 +4,55 @@ import GameBoard from "./pages/GameBoard";
 import HomePage from "./pages/HomePage";
 import SettingsModal from "./components/SettingsModal";
 import constants from "./utils/constants";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
+  const { DEFAULT_SETTINGS } = constants;
 
-  const {DEFAULT_SETTINGS} = constants
-
-  const [gameStarted, setGameStarted] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [gameSettings, setGameSettings] = useState(DEFAULT_SETTINGS);
 
   const onStartGame = () => {
-    setGameStarted(true)
-  }
+    setGameStarted(true);
+  };
 
   const onBackToMenu = () => {
-    setGameStarted(false)
-  }
+    setGameStarted(false);
+  };
   const onShowSettings = () => {
-    setShowSettings(true)
-  }
+    setShowSettings(true);
+  };
 
   const onSettingsSave = (newGameSettings) => {
-    setGameSettings(newGameSettings)
-    setGameStarted(true)
-  }
+    setGameSettings(newGameSettings);
+    setGameStarted(true);
+  };
 
   return (
     <>
-      <div className="min-h-screen bg-blue-700 text-white font-sans">
-        {gameStarted ? (
-          <GameBoard settings={gameSettings} onBackToMenu={onBackToMenu} />
-        ) : (
-          <>
-            <HomePage
-              onStartGame={onStartGame}
-              onShowSettings={onShowSettings}
-            />
-            {showSettings && (
-              <SettingsModal
-                isOpen={showSettings}
-                onClose={() => setShowSettings(false)}
-                settings={gameSettings}
-                onSave={(newGameSettings) => onSettingsSave(newGameSettings)}
+      <ThemeProvider>
+        <div className="relative min-h-screen bg-blue-700 text-white font-sans">
+          {gameStarted ? (
+            <GameBoard settings={gameSettings} onBackToMenu={onBackToMenu} />
+          ) : (
+            <>
+              <HomePage
+                onStartGame={onStartGame}
+                onShowSettings={onShowSettings}
               />
-            )}
-          </>
-        )}
-      </div>
+              {showSettings && (
+                <SettingsModal
+                  isOpen={showSettings}
+                  onClose={() => setShowSettings(false)}
+                  settings={gameSettings}
+                  onSave={(newGameSettings) => onSettingsSave(newGameSettings)}
+                />
+              )}
+            </>
+          )}
+        </div>
+      </ThemeProvider>
     </>
   );
 }

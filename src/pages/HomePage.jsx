@@ -1,16 +1,23 @@
+import ThemeSelector from "../components/ThemeSelector";
+import { useTheme } from "../context/ThemeContext";
+
 const HomePage = ({ onStartGame, onShowSettings }) => {
+  const {theme} = useTheme()
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-700 via-green-800 to-green-900 flex items-center justify-center p-6">
+    <div className={`min-h-screen bg-linear-to-br ${theme.background} flex items-center justify-center p-6`}>
       <div className="text-center">
-        {/* Logo/Title */}
+        <div className="absolute top-6 right-6">
+          <ThemeSelector />
+        </div>
         <div className="mb-8">
           <h1 className="text-7xl font-bold text-yellow-100 drop-shadow-2xl mb-4 animate-pulse">
             Baby Solitaire
           </h1>
-          <p className="text-xl text-green-200 italic">Highly Customizable Solitaire Game</p>
+          <p className="text-xl text-green-200 italic">
+            Highly Customizable Solitaire Game
+          </p>
         </div>
 
-        {/* Card Animation */}
         <div className="flex justify-center gap-3 mb-12">
           {["♠", "♥", "♦", "♣"].map((suit, i) => (
             <div
@@ -26,7 +33,6 @@ const HomePage = ({ onStartGame, onShowSettings }) => {
           ))}
         </div>
 
-        {/* Menu Buttons */}
         <div className="space-y-4 space-x-4">
           <button
             onClick={onStartGame}
@@ -43,9 +49,8 @@ const HomePage = ({ onStartGame, onShowSettings }) => {
           </button>
         </div>
 
-        {/* Footer */}
         <p className="mt-12 text-green-300 text-sm">
-         Baby Solitaire • Made with ❤️ by babyxboss
+          Baby Solitaire • Made with ❤️ by babyxboss
         </p>
       </div>
 

@@ -1,11 +1,13 @@
 import { useDroppable } from "@dnd-kit/core";
 import CardDraggable from "./CardDraggable";
+import { useTheme } from "../context/ThemeContext";
 
 const Foundation = ({ index, suit, foundation, hint }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `foundation-${suit}`,
     data: { destination: "foundation", destinationIdx: index },
   });
+  const {theme} = useTheme();
 
   const topCard = foundation.peek();
   const isRed = suit === "♥" || suit === "♦";
@@ -14,13 +16,13 @@ const Foundation = ({ index, suit, foundation, hint }) => {
     <div
       ref={setNodeRef}
       className={`relative w-20 h-28 rounded-lg border-2 transition-all duration-200 ${
-        isOver
-          ? "bg-green-600 border-green-400"
-          : hint &&
-            hint.destination === "foundation" &&
-            hint.destinationIdx === index
+        isOver ? `${theme.foundationHover}` : `${theme.foundation}`
+      } ${
+        hint &&
+        hint.destination === "foundation" &&
+        hint.destinationIdx === index
           ? "bg-yellow-600 border-yellow-400 animate-pulse"
-          : "bg-green-800 border-green-700"
+          : ""
       }`}
     >
       {topCard ? (

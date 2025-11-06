@@ -6,7 +6,9 @@ import Controls from "../components/Controls";
 import GameState from "../game/GameState";
 import constants from "../utils/constants";
 import Stock from "../components/Stock"
-
+import ThemeSelector from "../components/ThemeSelector"
+import VictoryModal from "../components/VictoryModal";
+import { useTheme } from "../context/ThemeContext";
 const {SUITS} = constants
 
 const GameBoard = ({ onBackToMenu, settings }) => {
@@ -23,12 +25,17 @@ const GameBoard = ({ onBackToMenu, settings }) => {
     handleRedo,
     handleUndo,
     findHint,
+    checkWinCondition,
     undoPossible,
     redoPossible,
   } = GameState(settings);
 
+  const [showVictory, setShowVictory] = useState(false);
+
   const [time, setTime] = useState(0);
+  const [winTime, setWinTime] = useState(0);
   const [hint, setHint] = useState(null)
+  const { theme } = useTheme();
 
   useEffect(() => {
     handleNewGame();
@@ -68,35 +75,50 @@ const GameBoard = ({ onBackToMenu, settings }) => {
       cardIdx,
       sourceCard
     );
+
+    if (checkWinCondition()) {
+      setWinTime(time)
+      setShowVictory(true);
+    }
+  };
+
+  const handleNewGameWithReset = () => {
+    setTime(0);
+    setWinTime(0);
+    setShowVictory(false);
+    handleNewGame();
   };
 
   return (
     <DndContext onDragEnd={cardDragEnd}>
-      <div className="min-h-screen bg-linear-to-br from-green-700 via-green-800 to-green-900 p-6 text-white">
+      <div className={`min-h-screen bg-linear-to-br ${theme.background} p-6 text-white`}>
         {/* Header */}
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-6 text-yellow-100 drop-shadow-lg">
             Baby Solitaire
           </h1>
 
-          {/* Stats Bar */}
           <div className="flex justify-center gap-8 mb-6 text-lg font-semibold">
-            <div className="bg-green-900 px-4 py-2 rounded-lg shadow-md">
+            <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
               ⏱️ {Math.floor(time / 60)}:{("0" + (time % 60)).slice(-2)}
             </div>
-            <div className="bg-green-900 px-4 py-2 rounded-lg shadow-md">
+            <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
               🎯 Moves: {moves}
             </div>
-            <div className="bg-green-900 px-4 py-2 rounded-lg shadow-md">
+            <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
               ⭐ Score: {score}
             </div>
+            <ThemeSelector />
           </div>
 
-          {/* Top Row: Stock/Waste and Foundations */}
           <div className="flex justify-between items-start mb-8 max-w-6xl mx-auto">
-            {/* Stock and Waste */}
 
-            <Stock stock={stock} currentWindow={currentWindow} draw={draw} hint={hint} />
+            <Stock
+              stock={stock}
+              currentWindow={currentWindow}
+              draw={draw}
+              hint={hint}
+            />
 
             {/* Foundations */}
             <div className="flex gap-3">
@@ -112,7 +134,6 @@ const GameBoard = ({ onBackToMenu, settings }) => {
             </div>
           </div>
 
-          {/* Tableau */}
           <div className="flex justify-center gap-4 mb-6">
             {tableaus.map((pile, i) => (
               <Pile key={i} pile={pile} pileIdx={i} hint={hint} />
@@ -125,12 +146,8 @@ const GameBoard = ({ onBackToMenu, settings }) => {
             </div>
           )}
 
-          {/* Controls */}
           <Controls
-            reset={() => {
-              setTime(0);
-              handleNewGame();
-            }}
+            reset={handleNewGameWithReset}
             handleRedo={handleRedo}
             handleUndo={handleUndo}
             disableRedo={!redoPossible}
@@ -139,6 +156,15 @@ const GameBoard = ({ onBackToMenu, settings }) => {
             onShowHint={handleShowHint}
           />
         </div>
+
+        <VictoryModal
+          isOpen={showVictory}
+          score={score}
+          moves={moves}
+          time={winTime}
+          onNewGame={handleNewGameWithReset}
+          onBackToMenu={onBackToMenu}
+        />
       </div>
     </DndContext>
   );

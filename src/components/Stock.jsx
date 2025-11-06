@@ -1,11 +1,13 @@
 import React from 'react'
 import CardDraggable from './CardDraggable';
+import { useTheme } from '../context/ThemeContext';
 
 const Stock = ({stock, currentWindow, draw, hint}) => {
+  const {theme} = useTheme();
   return (
     <div className="flex gap-4 items-center">
       <div
-        className="w-20 h-28 bg-linear-to-br from-green-800 to-green-900 border-2 border-green-600 rounded-lg flex items-center justify-center cursor-pointer hover:border-yellow-500 transition-colors shadow-lg"
+        className={`w-20 h-28 bg-linear-to-br ${theme.stockPile} border-2 rounded-lg flex items-center justify-center cursor-pointer hover:border-yellow-500 transition-colors shadow-lg`}
         onClick={draw}
       >
         <div className="text-center text-xs font-semibold">

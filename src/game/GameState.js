@@ -365,6 +365,31 @@ export default function GameState(settings) {
     }
   }
 
+  function checkWinCondition() {
+    for (const tableau of tableaus) {
+      const cards = tableau.toArray();
+      for (const card of cards) {
+        if (!card.faceUp) {
+          return false;
+        }
+      }
+    }
+
+    if (stock.size() > 0) {
+      return false;
+    }
+
+    if (waste.size() > 0) {
+      return false;
+    }
+
+    if (currentWindow.length > 0) {
+      return false;
+    }
+
+    return true;
+  }
+
   function findHint() {
     if (currentWindow.length > 0) {
       for(let i = 0; i < currentWindow.length;i++) {
@@ -487,6 +512,7 @@ export default function GameState(settings) {
     handleRedo,
     handleUndo,
     findHint,
+    checkWinCondition,
     undoPossible: undoStack.size() !== 0,
     redoPossible: redoStack.size() !== 0,
     stockSize: stock.size(),

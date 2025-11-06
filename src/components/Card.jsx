@@ -1,4 +1,7 @@
+import { useTheme } from "../context/ThemeContext";
+
 const Card = ({ card, isDraggable = false }) => {
+  const {theme} = useTheme();
   const isRed = card.color === "red";
 
   return (
@@ -6,7 +9,7 @@ const Card = ({ card, isDraggable = false }) => {
       className={`relative w-20 h-28 rounded-lg border-2 transition-all duration-300 ${
         card.faceUp
           ? "bg-white border-gray-300 shadow-md hover:shadow-lg cursor-pointer"
-          : "bg-linear-to-br from-blue-600 to-blue-800 border-blue-900"
+          : `bg-linear-to-br ${theme.cardBack} ${theme.cardBackBorder}`
       } ${isDraggable ? "hover:-translate-y-1.5" : ""}`}
       style={{
         boxShadow: card.faceUp
@@ -46,11 +49,11 @@ const Card = ({ card, isDraggable = false }) => {
           </div>
         </>
       ) : (
-        <div className="w-full h-full rounded-lg bg-linear-to-br from-blue-700 to-blue-900 p-2 relative overflow-hidden">
+        <div className={`w-full h-full rounded-lg bg-linear-to-br ${theme.cardBack} p-2 relative overflow-hidden`}>
           <div className="absolute inset-0 opacity-20">
             <div className="grid grid-cols-4 gap-1 w-full h-full p-1">
               {[...Array(20)].map((_, i) => (
-                <div key={i} className="bg-blue-300 rounded-sm" />
+                <div key={i} className={`${theme.cardPattern} rounded-sm`} />
               ))}
             </div>
           </div>

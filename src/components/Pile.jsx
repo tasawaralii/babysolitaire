@@ -1,12 +1,14 @@
 import { useDroppable } from "@dnd-kit/core";
 import CardDraggable from "./CardDraggable";
 import Card from "./Card";
+import { useTheme } from "../context/ThemeContext";
 
 const Pile = ({ pile, pileIdx, hint }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `pile-${pileIdx}`,
     data: { destination: "pile", destinationIdx: pileIdx },
   });
+  const {theme} = useTheme();
 
   const cards = pile.toArray();
   const hasCards = cards.length > 0;
@@ -23,7 +25,7 @@ const Pile = ({ pile, pileIdx, hint }) => {
     >
       {/* Empty pile placeholder */}
       {!hasCards && (
-        <div className="w-20 h-28 rounded-lg border-2 border-dashed border-green-600 opacity-40" />
+        <div className={`w-20 h-28 rounded-lg border-2 border-dashed ${theme.emptyPileBorder} opacity-40`} />
       )}
 
       {/* Cards stack */}

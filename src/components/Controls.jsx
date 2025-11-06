@@ -12,7 +12,7 @@ const Controls = ({
       onClick={onBackToMenu}
       className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold shadow-md transition-colors"
     >
-      ← Menu
+      Home
     </button>
     <button
       onClick={reset}
