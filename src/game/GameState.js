@@ -2,12 +2,12 @@ import LinkedList from "../dataStructures/LinkedList";
 import Stack from "../dataStructures/Stack";
 import Queue from "../dataStructures/Queue";
 import { useState, useEffect } from "react";
-import constants from "../utils/constants"
-import MoveValidator from "./MoveValidator"
+import constants from "../utils/constants";
+import MoveValidator from "./MoveValidator";
 
-const {SUITS, RANKS} = constants
+const { SUITS, RANKS } = constants;
 
-export default function GameState() {
+export default function GameState(settings) {
   const [tableaus, setTableaus] = useState([
     new LinkedList(),
     new LinkedList(),
@@ -30,7 +30,7 @@ export default function GameState() {
   const [moves, setMoves] = useState(0);
   const [undoStack, setUndoStack] = useState(new Stack());
   const [redoStack, setRedoStack] = useState(new Stack());
-  
+
   function getGameSnapshot() {
     return {
       tableaus: tableaus.map((pile) => pile.clone()),
@@ -66,7 +66,7 @@ export default function GameState() {
     const currentState = getGameSnapshot();
     const newRedoStack = redoStack.copy();
     newRedoStack.push(currentState);
-    setMoves((prevMoves) => prevMoves + 1);
+    if (settings.countUndoRedo) setMoves((prevMoves) => prevMoves + 1);
     setUndoStack(newUndoStack);
     setRedoStack(newRedoStack);
     loadGameSnapshot(prevState);
@@ -79,7 +79,7 @@ export default function GameState() {
     const currentState = getGameSnapshot();
     const newUndoStack = undoStack.copy();
     newUndoStack.push(currentState);
-    setMoves((prevMoves) => prevMoves + 1);
+    if (settings.countUndoRedo) setMoves((prevMoves) => prevMoves + 1);
     setUndoStack(newUndoStack);
     setRedoStack(newRedoStack);
     loadGameSnapshot(nextState);
@@ -143,7 +143,6 @@ export default function GameState() {
     setMoves(0);
     setUndoStack(new Stack());
     setRedoStack(new Stack());
-    
   }
 
   function moveCardBetweenPiles(fromT, toT, cardIdx) {
@@ -183,10 +182,22 @@ export default function GameState() {
   function draw() {
     if (currentWindow.length === 0 && stock.size() === 0 && waste.size() === 0)
       return;
+
+    const WINDOW_SIZE = settings.drawCount || 3;
+
     saveUndoRedoStack();
     setMoves((prevMoves) => prevMoves + 1);
 
     if (stock.size() === 0) {
+      if (currentWindow.length > 0) {
+        const newWaste = waste.clone();
+        while (currentWindow.length > 0) {
+          newWaste.enqueue(currentWindow.pop());
+        }
+        setCurrentWindow([]);
+        setWaste(newWaste);
+        return;
+      }
       if (waste.size() > 0) {
         const newStock = new Queue();
         const newWaste = waste;
@@ -214,8 +225,8 @@ export default function GameState() {
     let newCurrentWindow = [];
     let newStock = stock.clone();
 
-    if (newStock.size() >= 3) {
-      for (let i = 0; i < 3; i++) {
+    if (newStock.size() >= WINDOW_SIZE) {
+      for (let i = 0; i < WINDOW_SIZE; i++) {
         const card = newStock.dequeue();
         card.faceUp = true;
         newCurrentWindow.push(card);
@@ -292,7 +303,7 @@ export default function GameState() {
           const destinationCard = peekPileCard(destinationIdx);
           if (MoveValidator.toPile(sourceCard, destinationCard)) {
             moveCardBetweenPiles(sourceIdx, destinationIdx, cardIdx);
-            pointsAwarded = 10;
+            pointsAwarded = settings.scoring.tableauToTableau;
           }
         } else if (destination === "foundation") {
           if (
@@ -306,7 +317,7 @@ export default function GameState() {
               destinationIdx,
               removeFromPileState(sourceIdx, cardIdx).data
             );
-            pointsAwarded = 20;
+            pointsAwarded = settings.scoring.tableauToFoundation;
           }
         }
         break;
@@ -317,7 +328,7 @@ export default function GameState() {
             const list = new LinkedList();
             list.appendAtFirst(card);
             insertInPileState(destinationIdx, list.head);
-            pointsAwarded = 5;
+            pointsAwarded = settings.scoring.wasteToTableau;
           }
         } else if (destination === "foundation") {
           if (
@@ -329,7 +340,7 @@ export default function GameState() {
           ) {
             const card = removeFromWasteState(cardIdx);
             insertToFoundationState(destinationIdx, card);
-            pointsAwarded = 15;
+            pointsAwarded = settings.scoring.wasteToFoundation;
           }
         }
         break;
@@ -341,7 +352,7 @@ export default function GameState() {
               destinationIdx,
               new LinkedList().appendAtFirst(card)
             );
-            pointsAwarded = -5;
+            pointsAwarded = settings.scoring.foundationToTableau;
           }
         }
         break;
@@ -354,6 +365,114 @@ export default function GameState() {
     }
   }
 
+  function findHint() {
+    if (currentWindow.length > 0) {
+      for(let i = 0; i < currentWindow.length;i++) {
+      const wasteCard = currentWindow[i];
+      for (let j = 0; j < 4; j++) {
+        console.log("waste-to-foundation");
+        if (
+          MoveValidator.toFoundation(SUITS[j], wasteCard, foundations[j].peek())
+        ) {
+          return {
+            type: "waste-to-foundation",
+            source: "waste",
+            sourceIdx: i,
+            destination: "foundation",
+            destinationIdx: j,
+            card: wasteCard,
+            message: `Move ${wasteCard.value}${wasteCard.suit} from waste to ${SUITS[i]} foundation`,
+          };
+        }
+      }
+      }
+    }
+
+    // Priority 2: Check tableau cards to foundation
+    for (let i = 0; i < 7; i++) {
+      const pileCard = peekPileCard(i);
+      if (pileCard) {
+        for (let j = 0; j < 4; j++) {
+          console.log("pile-to-foundation" + i);
+
+          if (
+            MoveValidator.toFoundation(
+              SUITS[j],
+              pileCard,
+              foundations[j].peek()
+            )
+          ) {
+            console.log(`tableau ${i} card ${tableaus[i].size}`);
+            return {
+              type: "pile-to-foundation",
+              source: "pile",
+              sourceIdx: i,
+              cardIdx: tableaus[i].size - 1,
+              destination: "foundation",
+              destinationIdx: j,
+              card: pileCard,
+              message: `Move ${pileCard.value}${pileCard.suit} from pile ${i} to ${SUITS[j]} foundation`,
+            };
+          }
+        }
+      }
+    }
+
+    // Priority 3: Check if waste card can go to tableau
+    if (currentWindow.length > 0) {
+      for(let i = 0; i < currentWindow.length; i++) {
+        const wasteCard = currentWindow[i];
+        for (let j = 0; j < 7; j++) {
+          console.log("waste-to-pile");
+          if (MoveValidator.toPile(wasteCard, peekPileCard(j))) {
+            return {
+              type: "waste-to-pile",
+              source: "waste",
+              sourceIdx: i,
+              destination: "pile",
+              destinationIdx: j,
+              card: wasteCard,
+              message: `Move ${wasteCard.value}${wasteCard.suit} from waste to pile ${i}`,
+            };
+          }
+        }
+      }
+    }
+
+    // Priority 4: Check pile to pile moves
+    for (let i = 0; i < 7; i++) {
+      const cards = tableaus[i].toArray();
+      for (let j = 0; j < cards.length; j++) {
+        if (cards[j].faceUp) {
+          for (let k = 0; k < 7; k++) {
+            console.log("pile-to-pile");
+
+            if (i !== k && MoveValidator.toPile(cards[j], peekPileCard(k))) {
+              return {
+                type: "pile-to-pile",
+                source: "pile",
+                sourceIdx: i,
+                cardIdx: j,
+                destination: "pile",
+                destinationIdx: k,
+                card: cards[j],
+                message: `Move ${cards[j].value}${cards[j].suit} from pile ${i} to pile ${k}`,
+              };
+            }
+          }
+        }
+      }
+    }
+
+    // No moves found
+    return {
+      type: "no-move",
+      message:
+        stock.size() > 0
+          ? "Try drawing from stock"
+          : "No valid moves available",
+    };
+  }
   return {
     moveCardToDestination,
     moves,
@@ -367,6 +486,7 @@ export default function GameState() {
     handleNewGame,
     handleRedo,
     handleUndo,
+    findHint,
     undoPossible: undoStack.size() !== 0,
     redoPossible: redoStack.size() !== 0,
     stockSize: stock.size(),

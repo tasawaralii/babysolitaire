@@ -15,4 +15,18 @@ export default {
     { value: "Q", rank: 12 },
     { value: "K", rank: 13 },
   ],
+  DEFAULT_SETTINGS : {
+    drawCount: 3,
+    scoring: {
+      wasteToTableau: 10,
+      wasteToFoundation: 15,
+      tableauToTableau: 5,
+      tableauToFoundation: 30,
+      foundationToTableau: -30,
+    },
+    countUndoRedo: true,
+    timedGame: true,
+    vegasScoring: true,
+    soundEffects:false,
+  }
 };

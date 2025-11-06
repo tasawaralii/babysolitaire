@@ -1,7 +1,7 @@
 import React from 'react'
 import CardDraggable from './CardDraggable';
 
-const Stock = ({stock, currentWindow, draw}) => {
+const Stock = ({stock, currentWindow, draw, hint}) => {
   return (
     <div className="flex gap-4 items-center">
       <div
@@ -9,7 +9,7 @@ const Stock = ({stock, currentWindow, draw}) => {
         onClick={draw}
       >
         <div className="text-center text-xs font-semibold">
-          {stock.size() > 0 ? (
+          {stock.size() > 0 || currentWindow.length > 0 ? (
             <div>
               <div className="text-2xl mb-1">🂠</div>
               <div>{stock.size()}</div>
@@ -28,6 +28,7 @@ const Stock = ({stock, currentWindow, draw}) => {
             cardSource="waste"
             sourceIdx={i}
             cardIdx={i}
+            isHinted={hint && hint.source === "waste" && hint.sourceIdx === i}
           />
         ))}
       </div>

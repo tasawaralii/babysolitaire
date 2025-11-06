@@ -57,6 +57,7 @@ export default class LinkedList {
       const head = this.head;
       this.head = null;
       this.tail = null;
+      this.size--;
       return head;
     }
 
@@ -67,6 +68,7 @@ export default class LinkedList {
     const node = current.next;
     current.next = null;
     this.tail = current
+    this.size--;
     return node;
   }
 
@@ -85,6 +87,7 @@ export default class LinkedList {
       const head = this.head;
       this.head = null;
       this.tail = null;
+      this.size = 0;
       return head;
     }
     if (index == this.size - 1) {
@@ -98,24 +101,35 @@ export default class LinkedList {
       current = current.next
       count++;
     }
+
+    let removedCount = 0;
+    let temp = current;
+    while (temp) {
+      removedCount++;
+      temp = temp.next;
+    }
+
     prev.next = null;
     this.tail = prev
+    this.size -= removedCount;
     return current;
   }
   appendSubList(sHead) {
     if(this.head == null) {
       this.head = sHead;
-      return this.head;
+    } else {
+      this.tail.next = sHead;
     }
-    let current = this.head
-    while(current.next) {
+    
+    let count = 0;
+    let current = sHead
+    while(current) {
+      count++;
+      if (!current.next) this.tail = current;
       current = current.next
     }
-    current.next = sHead
-    while(sHead.next) {
-      sHead = sHead.next
-    }
-    this.tail = sHead
+
+    this.size += count
     return this.head
   }
 

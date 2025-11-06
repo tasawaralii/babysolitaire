@@ -1,8 +1,8 @@
 import { useDroppable } from "@dnd-kit/core";
-import CardDraggable from "./CardDraggable"; 
+import CardDraggable from "./CardDraggable";
 import Card from "./Card";
 
-const Pile = ({ pile, pileIdx }) => {
+const Pile = ({ pile, pileIdx, hint }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `pile-${pileIdx}`,
     data: { destination: "pile", destinationIdx: pileIdx },
@@ -11,7 +11,7 @@ const Pile = ({ pile, pileIdx }) => {
   const cards = pile.toArray();
   const hasCards = cards.length > 0;
 
-  const pileHeight = (cards.length * 28) + 96;
+  const pileHeight = cards.length * 28 + 96;
 
   return (
     <div
@@ -43,6 +43,14 @@ const Pile = ({ pile, pileIdx }) => {
                 card={card}
                 cardIdx={j}
                 sourceIdx={pileIdx}
+                isHinted={
+                  hint &&
+                  ((hint.source === "pile" &&
+                    hint.sourceIdx === pileIdx &&
+                    hint.cardIdx === j) ||
+                    (hint.destination === "pile" &&
+                      hint.destinationIdx === pileIdx))
+                }
               />
             ) : (
               <Card card={card} />

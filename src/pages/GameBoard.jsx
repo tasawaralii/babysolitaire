@@ -9,7 +9,7 @@ import Stock from "../components/Stock"
 
 const {SUITS} = constants
 
-const GameBoardC = () => {
+const GameBoard = ({ onBackToMenu, settings }) => {
   const {
     moveCardToDestination,
     score,
@@ -22,19 +22,31 @@ const GameBoardC = () => {
     handleNewGame,
     handleRedo,
     handleUndo,
+    findHint,
     undoPossible,
-    redoPossible
-  } = GameState();
+    redoPossible,
+  } = GameState(settings);
 
   const [time, setTime] = useState(0);
+  const [hint, setHint] = useState(null)
 
   useEffect(() => {
     handleNewGame();
     const timeInterval = setInterval(() => {
-        setTime((prev) => prev + 1);
+      setTime((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timeInterval);
   }, []);
+
+  
+  function handleShowHint() {
+    const foundHint = findHint();
+    setHint(foundHint);
+
+    setTimeout(() => {
+      setHint(null);
+    }, 2000);
+  }
 
 
   const cardDragEnd = (event) => {
@@ -84,7 +96,7 @@ const GameBoardC = () => {
           <div className="flex justify-between items-start mb-8 max-w-6xl mx-auto">
             {/* Stock and Waste */}
 
-            <Stock stock={stock} currentWindow={currentWindow} draw={draw} />
+            <Stock stock={stock} currentWindow={currentWindow} draw={draw} hint={hint} />
 
             {/* Foundations */}
             <div className="flex gap-3">
@@ -94,6 +106,7 @@ const GameBoardC = () => {
                   index={i}
                   suit={SUITS[i]}
                   foundation={foundation}
+                  hint={hint}
                 />
               ))}
             </div>
@@ -102,17 +115,28 @@ const GameBoardC = () => {
           {/* Tableau */}
           <div className="flex justify-center gap-4 mb-6">
             {tableaus.map((pile, i) => (
-              <Pile key={i} pile={pile} pileIdx={i} />
+              <Pile key={i} pile={pile} pileIdx={i} hint={hint} />
             ))}
           </div>
 
+          {hint && (
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg shadow-2xl font-bold animate-bounce z-50">
+              💡 {hint.message}
+            </div>
+          )}
+
           {/* Controls */}
           <Controls
-            reset={() => {setTime(0);handleNewGame()}}
+            reset={() => {
+              setTime(0);
+              handleNewGame();
+            }}
             handleRedo={handleRedo}
             handleUndo={handleUndo}
             disableRedo={!redoPossible}
             disableUndo={!undoPossible}
+            onBackToMenu={onBackToMenu}
+            onShowHint={handleShowHint}
           />
         </div>
       </div>
@@ -120,4 +144,4 @@ const GameBoardC = () => {
   );
 };
 
-export default GameBoardC;
+export default GameBoard;

@@ -1,6 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 import Card from "./Card";
-const CardDraggable = ({ card, cardSource, sourceIdx, cardIdx }) => {
+const CardDraggable = ({ card, cardSource, sourceIdx, cardIdx, isHinted }) => {
   if (!card) return null;
   const { setNodeRef, attributes, listeners, transform, isDragging } =
     useDraggable({
@@ -21,13 +21,14 @@ const CardDraggable = ({ card, cardSource, sourceIdx, cardIdx }) => {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`${
-        isDragging ? "opacity-50" : ""
-      } hover:-translate-y-1 transition-transform`}
+      className={`${isDragging ? "opacity-50" : ""} ${
+        isHinted ? "rounded ring-4 ring-yellow-400 animate-pulse" : ""
+      }
+        `}
     >
-      <Card card={card} />
+      <Card card={card} isDraggable={true} />
     </div>
   );
 };
 
-export default CardDraggable
+export default CardDraggable;

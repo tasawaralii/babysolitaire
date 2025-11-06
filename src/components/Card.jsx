@@ -1,13 +1,13 @@
-const Card = ({ card }) => {
+const Card = ({ card, isDraggable = false }) => {
   const isRed = card.color === "red";
 
   return (
     <div
-      className={`relative w-20 h-28 rounded-lg border-2 transition-all duration-200 ${
+      className={`relative w-20 h-28 rounded-lg border-2 transition-all duration-300 ${
         card.faceUp
           ? "bg-white border-gray-300 shadow-md hover:shadow-lg cursor-pointer"
           : "bg-linear-to-br from-blue-600 to-blue-800 border-blue-900"
-      }`}
+      } ${isDraggable ? "hover:-translate-y-1.5" : ""}`}
       style={{
         boxShadow: card.faceUp
           ? "0 2px 8px rgba(0,0,0,0.15)"
