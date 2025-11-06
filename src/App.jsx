@@ -5,7 +5,7 @@ function App() {
 
   return (
     <>
-        <div className="min-h-screen bg-green-700 text-white font-sans">
+        <div className="min-h-screen bg-blue-700 text-white font-sans">
           <GameBoard />
         </div>
     </>

@@ -33,9 +33,6 @@ export default class LinkedList {
     this.size++;
     return new_node;
   }
-  psize() {
-    return this.size;
-  }
   remove(x) {
     if (!this.head) return null;
     if (this.head.data == x) {

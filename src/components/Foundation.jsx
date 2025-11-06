@@ -1,18 +1,44 @@
-export default function Foundation({ suit, cards }) {
-  const suitSymbol = {
-    heart: "♥",
-    diamond: "♦",
-    club: "♣",
-    spade: "♠",
-  }[suit];
+import { useDroppable } from "@dnd-kit/core";
+import CardDraggable from "./CardDraggable";
 
-  const color =
-    suit === "heart" || suit === "diamond" ? "text-red-400" : "text-black";
+const Foundation = ({ index, suit, foundation }) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id: `foundation-${suit}`,
+    data: { destination: "foundation", destinationIdx: index },
+  });
+
+  const topCard = foundation.peek();
+  const isRed = suit === "♥" || suit === "♦";
 
   return (
-    <div className="w-20 h-28 bg-green-900 border-2 border-white rounded-lg flex flex-col items-center justify-center">
-      <span className={`text-2xl ${color}`}>{suitSymbol}</span>
-      <span className="text-xs mt-1">{cards.length}</span>
+    <div
+      ref={setNodeRef}
+      className={`relative w-20 h-28 rounded-lg border-2 transition-all duration-200 ${
+        isOver
+          ? "bg-green-600 border-green-400"
+          : "bg-green-800 border-green-700"
+      }`}
+    >
+      {topCard ? (
+        <CardDraggable
+          card={topCard}
+          cardSource="foundation"
+          sourceIdx={index}
+          cardIdx={foundation.size() - 1}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <div
+            className={`text-5xl opacity-30 ${
+              isRed ? "text-red-300" : "text-gray-700"
+            }`}
+          >
+            {suit}
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Foundation
