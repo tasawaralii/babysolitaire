@@ -145,6 +145,45 @@ export default function GameState(settings) {
     setRedoStack(new Stack());
   }
 
+
+
+  function handleChallenge(challengeData) {
+
+    const newTableau = [
+      new LinkedList(),
+      new LinkedList(),
+      new LinkedList(),
+      new LinkedList(),
+      new LinkedList(),
+      new LinkedList(),
+      new LinkedList(),
+    ];
+
+    challengeData.tableau.forEach((pile, i) => {
+      pile.forEach((cardData) => {
+        newTableau[i].appendAtLast({ ...cardData });
+      });
+    });
+    const newStock = new Queue();
+    challengeData.stock.forEach((card) => {
+      newStock.enqueue(card);
+    });
+
+    const newFoundations = [new Stack(), new Stack(), new Stack(), new Stack()];
+    const newWaste = new Queue();
+
+    setWaste(newWaste);
+    setCurrentWindow([]);
+    setFoundations(newFoundations);
+    setTableaus(newTableau);
+    setStock(newStock);
+    setScore(0);
+    setMoves(0);
+    setUndoStack(new Stack());
+    setRedoStack(new Stack());
+  }
+
+
   function moveCardBetweenPiles(fromT, toT, cardIdx) {
     const newTableau = [...tableaus];
     const fromPile = newTableau[fromT].clone();
@@ -509,6 +548,7 @@ export default function GameState(settings) {
     currentWindow,
     foundations,
     handleNewGame,
+    handleChallenge,
     handleRedo,
     handleUndo,
     findHint,
