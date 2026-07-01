@@ -1,3 +1,5 @@
+import { useTheme } from "../context/ThemeContext";
+
 const Controls = ({
   reset,
   handleUndo,
@@ -6,41 +8,66 @@ const Controls = ({
   disableRedo,
   onBackToMenu,
   onShowHint,
-}) => (
-  <div className="flex gap-3 justify-center mt-12">
-    <button
-      onClick={onBackToMenu}
-      className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-semibold shadow-md transition-colors"
-    >
-      Home
-    </button>
-    <button
-      onClick={reset}
-      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold shadow-md transition-colors"
-    >
-      New Game
-    </button>
-    <button
-      onClick={handleUndo}
-      disabled={disableUndo}
-      className="px-6 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold shadow-md transition-colors"
-    >
-      Undo
-    </button>
-    <button
-      onClick={handleRedo}
-      disabled={disableRedo}
-      className="px-6 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold shadow-md transition-colors"
-    >
-      Redo
-    </button>
-    <button
-      onClick={onShowHint}
-      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold shadow-md transition-colors"
-    >
-      Show Hint
-    </button>
-  </div>
-);
+}) => {
+  const { theme } = useTheme();
 
-export default Controls
+
+  const buttonStyle = `${theme.statsBar} px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-md flex items-center gap-1.5 hover:opacity-80 transition-opacity`;
+
+  return (
+
+    <div className="flex flex-col gap-3 sm:gap-4 mt-8 sm:mt-12 mb-6 px-1">
+      
+
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 text-sm sm:text-base md:text-xl font-semibold">
+        <button
+          className={buttonStyle}
+          onClick={onBackToMenu}
+        >
+          <span>🏠</span>
+          <span>Home</span>
+        </button>
+
+        <button
+          className={buttonStyle}
+          onClick={reset}
+        >
+          <span>🔄</span>
+          <span>New Game</span>
+        </button>
+
+        <button
+          className={buttonStyle}
+          onClick={onShowHint}
+        >
+          <span>💡</span>
+          <span>Hint</span>
+        </button>
+      </div>
+
+
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 text-sm sm:text-base md:text-xl font-semibold">
+        <button
+          onClick={handleUndo}
+          disabled={disableUndo}
+          className={`${buttonStyle} disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:opacity-50`}
+        >
+          <span>↩️</span>
+          <span>Undo</span>
+        </button>
+
+        <button
+          onClick={handleRedo}
+          disabled={disableRedo}
+          className={`${buttonStyle} disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:opacity-50`}
+        >
+          <span>↪️</span>
+          <span>Redo</span>
+        </button>
+      </div>
+
+    </div>
+  );
+};
+
+export default Controls;

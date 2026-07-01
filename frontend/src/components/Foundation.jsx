@@ -7,7 +7,7 @@ const Foundation = ({ index, suit, foundation, hint }) => {
     id: `foundation-${suit}`,
     data: { destination: "foundation", destinationIdx: index },
   });
-  const {theme} = useTheme();
+  const { theme } = useTheme();
 
   const topCard = foundation.peek();
   const isRed = suit === "♥" || suit === "♦";
@@ -15,7 +15,8 @@ const Foundation = ({ index, suit, foundation, hint }) => {
   return (
     <div
       ref={setNodeRef}
-      className={`relative w-20 h-28 rounded-lg border-2 transition-all duration-200 ${
+
+      className={`relative w-12 sm:w-16 md:w-20 h-16 sm:h-24 md:h-28 rounded-md sm:rounded-lg border-[1px] sm:border-2 transition-all duration-200 ${
         isOver ? `${theme.foundationHover}` : `${theme.foundation}`
       } ${
         hint &&
@@ -35,7 +36,8 @@ const Foundation = ({ index, suit, foundation, hint }) => {
       ) : (
         <div className="w-full h-full flex items-center justify-center">
           <div
-            className={`text-5xl opacity-30 ${
+            // Scaled the placeholder suit icon to fit mobile screens
+            className={`text-3xl sm:text-4xl md:text-5xl opacity-30 ${
               isRed ? "text-red-300" : "text-gray-700"
             }`}
           >
@@ -47,4 +49,4 @@ const Foundation = ({ index, suit, foundation, hint }) => {
   );
 };
 
-export default Foundation
+export default Foundation;

@@ -12,8 +12,11 @@ const CardDraggable = ({ card, cardSource, sourceIdx, cardIdx, isHinted }) => {
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         zIndex: 50,
+        touchAction: "none",
       }
-    : undefined;
+    : {
+        touchAction: "none",
+      };;
 
   return (
     <div

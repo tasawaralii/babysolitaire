@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DndContext} from "@dnd-kit/core";
+import { DndContext, useSensor, useSensors, MouseSensor, TouchSensor } from "@dnd-kit/core";
 import Pile from "../components/Pile";
 import Foundation from "../components/Foundation";
 import Controls from "../components/Controls";
@@ -9,7 +9,7 @@ import Stock from "../components/Stock"
 import ThemeSelector from "../components/ThemeSelector"
 import VictoryModal from "../components/VictoryModal";
 import { useTheme } from "../context/ThemeContext";
-const {SUITS} = constants
+const { SUITS } = constants
 
 const GameBoard = ({ onBackToMenu, settings }) => {
   const {
@@ -31,7 +31,6 @@ const GameBoard = ({ onBackToMenu, settings }) => {
   } = GameState(settings);
 
   const [showVictory, setShowVictory] = useState(false);
-
   const [time, setTime] = useState(0);
   const [winTime, setWinTime] = useState(0);
   const [hint, setHint] = useState(null)
@@ -45,16 +44,13 @@ const GameBoard = ({ onBackToMenu, settings }) => {
     return () => clearInterval(timeInterval);
   }, []);
 
-  
   function handleShowHint() {
     const foundHint = findHint();
     setHint(foundHint);
-
     setTimeout(() => {
       setHint(null);
     }, 2000);
   }
-
 
   const cardDragEnd = (event) => {
     if (!event.over) return;
@@ -89,30 +85,42 @@ const GameBoard = ({ onBackToMenu, settings }) => {
     handleNewGame();
   };
 
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, 
+        tolerance: 5, 
+      },
+    })
+  );
+
   return (
-    <DndContext onDragEnd={cardDragEnd}>
-      <div className={`min-h-screen bg-linear-to-br ${theme.background} p-6 text-white`}>
-        {/* Header */}
+    <DndContext onDragEnd={cardDragEnd} sensors={sensors}>
+
+      <div className={`min-h-screen bg-linear-to-br ${theme.background} p-2 sm:p-6 text-white overflow-x-hidden`}>
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-6 text-yellow-100 drop-shadow-lg">
+          
+
+          <h1 className="text-2xl sm:text-4xl font-bold text-center mb-4 sm:mb-6 text-yellow-100 drop-shadow-lg">
             Baby Solitaire
           </h1>
 
-          <div className="flex justify-center gap-8 mb-6 text-lg font-semibold">
-            <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
+
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 mb-4 sm:mb-6 text-xs sm:text-sm md:text-lg font-semibold px-1">
+            <div className={`${theme.statsBar} px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md flex items-center`}>
               ⏱️ {Math.floor(time / 60)}:{("0" + (time % 60)).slice(-2)}
             </div>
-            <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
+            <div className={`${theme.statsBar} px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md flex items-center`}>
               🎯 Moves: {moves}
             </div>
-            <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
+            <div className={`${theme.statsBar} px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md flex items-center`}>
               ⭐ Score: {score}
             </div>
             <ThemeSelector />
           </div>
 
-          <div className="flex justify-between items-start mb-8 max-w-6xl mx-auto">
-
+          <div className="flex flex-wrap justify-center sm:justify-between items-start gap-y-4 mb-6 sm:mb-8 max-w-6xl mx-auto px-1">
             <Stock
               stock={stock}
               currentWindow={currentWindow}
@@ -120,8 +128,8 @@ const GameBoard = ({ onBackToMenu, settings }) => {
               hint={hint}
             />
 
-            {/* Foundations */}
-            <div className="flex gap-3">
+
+            <div className="flex ml-2 gap-1 sm:gap-2 md:gap-3">
               {foundations.map((foundation, i) => (
                 <Foundation
                   key={i}
@@ -134,14 +142,15 @@ const GameBoard = ({ onBackToMenu, settings }) => {
             </div>
           </div>
 
-          <div className="flex justify-center gap-4 mb-6">
+
+          <div className="flex justify-center gap-1 sm:gap-2 md:gap-4 mb-6 px-1">
             {tableaus.map((pile, i) => (
               <Pile key={i} pile={pile} pileIdx={i} hint={hint} />
             ))}
           </div>
 
           {hint && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg shadow-2xl font-bold animate-bounce z-50">
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg shadow-2xl font-bold animate-bounce z-50 text-sm sm:text-base text-center w-11/12 max-w-md">
               💡 {hint.message}
             </div>
           )}

@@ -13,35 +13,35 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn flex items-center justify-center z-50 p-3 sm:p-4">
       <div
-        className={`bg-linear-to-br ${currentTheme.background} rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 border-4 ${currentTheme.cardBackBorder}`}
+        className={`bg-linear-to-br ${currentTheme.background} rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-4 sm:p-8 border-4 ${currentTheme.cardBackBorder}`}
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-yellow-100">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-3xl font-bold text-yellow-100">
             ⚙️ Game Settings
           </h2>
           <button
             onClick={onClose}
-            className="text-white hover:text-red-400 text-3xl font-bold"
+            className="text-white hover:text-red-400 text-2xl sm:text-3xl font-bold leading-none"
           >
             ×
           </button>
         </div>
         {/* Settings Content */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Draw Settings */}
           <div
-            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+            className={`${currentTheme.foundation} rounded-lg p-3 sm:p-5 border-2`}
           >
-            <h3 className="text-xl font-bold text-yellow-300 mb-4">
+            <h3 className="text-base sm:text-xl font-bold text-yellow-300 mb-3 sm:mb-4">
               🎴 Draw Settings
             </h3>
 
             <div className="space-y-4">
               <div>
-                <label className="text-white font-semibold mb-2 block">
+                <label className="text-white font-semibold mb-2 block text-sm sm:text-base">
                   Cards to Draw from Stock:
                 </label>
 
@@ -60,12 +60,12 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                   className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-yellow-400 bg-black/30"
                 />
 
-                <p className="text-yellow-300 text-lg font-bold text-center mt-2">
+                <p className="text-yellow-300 text-base sm:text-lg font-bold text-center mt-2">
                   Draw {localSettings.drawCount}{" "}
                   {localSettings.drawCount === 1 ? "card" : "cards"}
                 </p>
 
-                <p className="text-white/70 text-sm mt-1 text-center">
+                <p className="text-white/70 text-xs sm:text-sm mt-1 text-center">
                   Customize the number of Cards draw at a time
                 </p>
               </div>
@@ -74,15 +74,17 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
 
           {/* Scoring Settings */}
           <div
-            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+            className={`${currentTheme.foundation} rounded-lg p-3 sm:p-5 border-2`}
           >
-            <h3 className="text-xl font-bold text-yellow-300 mb-4">
+            <h3 className="text-base sm:text-xl font-bold text-yellow-300 mb-3 sm:mb-4">
               ⭐ Scoring
             </h3>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-white">Waste to Tableau:</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white text-sm sm:text-base">
+                  Waste to Tableau:
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -96,12 +98,14 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
+                  className={`w-16 sm:w-20 px-2 sm:px-3 py-1 bg-black/30 text-white text-sm sm:text-base rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-white">Waste to Foundation:</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white text-sm sm:text-base">
+                  Waste to Foundation:
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -115,12 +119,14 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
+                  className={`w-16 sm:w-20 px-2 sm:px-3 py-1 bg-black/30 text-white text-sm sm:text-base rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-white">Tableau to Tableau:</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white text-sm sm:text-base">
+                  Tableau to Tableau:
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -134,12 +140,14 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
+                  className={`w-16 sm:w-20 px-2 sm:px-3 py-1 bg-black/30 text-white text-sm sm:text-base rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-white">Tableau to Foundation:</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white text-sm sm:text-base">
+                  Tableau to Foundation:
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -153,12 +161,14 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
+                  className={`w-16 sm:w-20 px-2 sm:px-3 py-1 bg-black/30 text-white text-sm sm:text-base rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-white">Foundation to Tableau:</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white text-sm sm:text-base">
+                  Foundation to Tableau:
+                </span>
                 <input
                   type="number"
                   max={1}
@@ -174,7 +184,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
+                  className={`w-16 sm:w-20 px-2 sm:px-3 py-1 bg-black/30 text-white text-sm sm:text-base rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
             </div>
@@ -182,14 +192,14 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
 
           {/* Game Rules */}
           <div
-            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+            className={`${currentTheme.foundation} rounded-lg p-3 sm:p-5 border-2`}
           >
-            <h3 className="text-xl font-bold text-yellow-300 mb-4">
+            <h3 className="text-base sm:text-xl font-bold text-yellow-300 mb-3 sm:mb-4">
               📋 Game Rules
             </h3>
 
             <div className="space-y-3">
-              <label className="flex items-center gap-3 text-white cursor-pointer">
+              <label className="flex items-center gap-3 text-white cursor-pointer text-sm sm:text-base">
                 <input
                   type="checkbox"
                   checked={localSettings.countUndoRedo}
@@ -199,12 +209,12 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       countUndoRedo: e.target.checked,
                     })
                   }
-                  className="w-5 h-5 rounded"
+                  className="w-5 h-5 rounded shrink-0"
                 />
                 <span>Count Undo/Redo as Moves</span>
               </label>
 
-              <label className="flex items-center gap-3 text-white cursor-pointer">
+              <label className="flex items-center gap-3 text-white cursor-pointer text-sm sm:text-base">
                 <input
                   type="checkbox"
                   checked={localSettings.timedGame}
@@ -214,7 +224,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       timedGame: e.target.checked,
                     })
                   }
-                  className="w-5 h-5 rounded"
+                  className="w-5 h-5 rounded shrink-0"
                 />
                 <span>Timed Game</span>
               </label>
@@ -223,12 +233,12 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
 
           {/* Difficulty Preset */}
           <div
-            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+            className={`${currentTheme.foundation} rounded-lg p-3 sm:p-5 border-2`}
           >
-            <h3 className="text-xl font-bold text-yellow-300 mb-4">
+            <h3 className="text-base sm:text-xl font-bold text-yellow-300 mb-3 sm:mb-4">
               🎯 Difficulty Presets
             </h3>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() =>
                   setLocalSettings({
@@ -237,7 +247,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                     countUndoRedo: false,
                   })
                 }
-                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold"
+                className="flex-1 px-2 sm:px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm sm:text-base rounded-lg font-semibold"
               >
                 Easy
               </button>
@@ -249,7 +259,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                     countUndoRedo: false,
                   })
                 }
-                className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg font-semibold"
+                className="flex-1 px-2 sm:px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white text-sm sm:text-base rounded-lg font-semibold"
               >
                 Medium
               </button>
@@ -261,7 +271,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                     countUndoRedo: true,
                   })
                 }
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-semibold"
+                className="flex-1 px-2 sm:px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm sm:text-base rounded-lg font-semibold"
               >
                 Hard
               </button>
@@ -270,16 +280,16 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
           <button
             onClick={handleSave}
-            className="flex-1 px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold rounded-lg shadow-lg transition-all"
+            className="flex-1 px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold rounded-lg shadow-lg transition-all order-1"
           >
             Save & Start Game
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg shadow-lg transition-all"
+            className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg shadow-lg transition-all order-2"
           >
             Cancel
           </button>
