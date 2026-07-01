@@ -4,8 +4,9 @@
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=flat&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 
-A highly customizable implementation of the classic Solitaire (Klondike) card game built with React, featuring custom data structures implemented from scratch.
+A highly customizable implementation of the classic Solitaire (Klondike) card game built with React, featuring custom data structures implemented from scratch and a dedicated backend.
 
 **🔗 Play the live game here:** [https://babysolitaire.pages.dev/](https://babysolitaire.pages.dev/)
 
@@ -36,33 +37,53 @@ A highly customizable implementation of the classic Solitaire (Klondike) card ga
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
+- Python (for the backend)
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
 
 ### Installation
-1. Clone the repository
+
+1. **Clone the repository**
 ```bash
 git clone https://github.com/tasawaralii/babysolitaire.git
-```
-
-2. Navigate to the project directory
-```bash
 cd babysolitaire
 ```
 
-3. Install dependencies
+#### Backend Setup
+
+2. **Navigate to the backend directory and install dependencies**
+```bash
+cd backend
+uv sync
+```
+
+3. **Start Backend**
+```bash
+uv run fastapi dev
+```
+
+#### Frontend Setup
+
+4. **Navigate to the frontend directory**
+```bash
+cd ../frontend
+```
+
+5. **Install dependencies**
 ```bash
 npm install
 # or
 yarn install
 ```
 
-4. Run the development server
+6. **Run the development server**
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-5. Open your browser and navigate to `http://localhost:5173`
+7. **Play the game!**
+Open your browser and navigate to `http://localhost:5173`
 
 ## 🎮 How to Play
 
@@ -88,4 +109,5 @@ yarn dev
 - **[Vite](https://vitejs.dev/)** - Build Tool
 - **[Tailwind CSS](https://tailwindcss.com/)** - Styling
 - **[DND Kit](https://dndkit.com/)** - Drag and Drop Architecture
+- **[Python](https://www.python.org/) & [uv](https://docs.astral.sh/uv/)** - Backend & Package Management
 - **Custom Data Structures** - Core Game Logic

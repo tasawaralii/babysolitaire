@@ -17,5 +17,25 @@ const getDailyChallenge = async () => {
   }
 }
 
-export { getDailyChallenge };
+const submitChallengeScore = async (scoreData) => {
+  try {
+    const response = await api.post('/daily-challenge/score', scoreData);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting challenge score:', error);
+    throw error;
+  }
+}
+
+const getLeaderboard = async () => {
+  try {
+    const response = await api.get('/daily-challenge/leaderboard');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    throw error;
+  }
+}
+
+export { getDailyChallenge, submitChallengeScore, getLeaderboard };
 export default api;

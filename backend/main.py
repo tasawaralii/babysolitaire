@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+from datetime import datetime
 
 app = FastAPI()
 app.add_middleware(
@@ -24,6 +25,20 @@ class DailyChallengePayload(BaseModel):
     challenge_id: str
     tableau: List[List[CardModel]]
     stock: List[CardModel]
+    
+class ScoreSubmission(BaseModel):
+    challenge_id: str
+    username: str
+    time: int
+    moves: int
+    score: int
+
+class LeaderboardEntry(BaseModel):
+    username: str
+    time: int
+    moves: int
+    score: int
+    date: str
 
 SUITS = ["♠", "♥", "♦", "♣"]
 RANKS = [
@@ -42,9 +57,14 @@ RANKS = [
     {"value": "K", "rank": 13},
 ]
 
+leaderboard_db = [
+    {"username": "Tasawar (Creator)", "time": 145, "moves": 92, "score": 500, "date": "2026-07-01"},
+    {"username": "UET_Challenger", "time": 190, "moves": 110, "score": 420, "date": "2026-07-01"}
+]
+
 @app.get("/api/daily-challenge", response_model=DailyChallengePayload)
 def get_daily_challenge():
-    # 1. Generate the initial deck (Unshuffled for Iteration 1)
+
     deck: List[CardModel] = []
     for suit in SUITS:
         for rank_info in RANKS:
@@ -57,18 +77,15 @@ def get_daily_challenge():
                 id=f"{suit}-{rank_info['value']}"
             ))
 
-    # 2. Deal into Tableaus mimicking your frontend logic exactly
+
     tableau = [[], [], [], [], [], [], []]
     
     for i in range(7):
         for j in range(i, 7):
-            card = deck.pop() # Pops from the end, exactly like your JS Stack
+            card = deck.pop()
             card.faceUp = (i == j)
             tableau[j].append(card)
 
-    # 3. The remaining 24 cards become the stock.
-    # Because your JS pushes the remaining stack into a Queue, 
-    # we just reverse the remaining list to maintain the exact same draw order.
     stock = deck[::-1] 
 
     return DailyChallengePayload(
@@ -76,3 +93,25 @@ def get_daily_challenge():
         tableau=tableau,
         stock=stock
     )
+    
+@app.post("/api/daily-challenge/score", response_model=List[LeaderboardEntry])
+def submit_score(submission: ScoreSubmission):
+
+    new_entry = {
+        "username": submission.username,
+        "time": submission.time,
+        "moves": submission.moves,
+        "score": submission.score,
+        "date": datetime.now().strftime("%Y-%m-%d")
+    }
+
+    leaderboard_db.append(new_entry)
+    
+    sorted_leaderboard = sorted(leaderboard_db, key=lambda x: (x["time"], x["moves"]))
+    
+    return sorted_leaderboard[:10]
+
+@app.get("/api/daily-challenge/leaderboard", response_model=List[LeaderboardEntry])
+def get_leaderboard():
+    sorted_leaderboard = sorted(leaderboard_db, key=lambda x: (x["time"], x["moves"]))
+    return sorted_leaderboard[:10]

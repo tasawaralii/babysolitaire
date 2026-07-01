@@ -7,7 +7,8 @@ import GameState from "../game/GameState";
 import constants from "../utils/constants";
 import Stock from "../components/Stock"
 import ThemeSelector from "../components/ThemeSelector"
-import VictoryModal from "../components/VictoryModal";
+import ChallengeVictoryModal from "../components/ChallengeVictoryModal";
+import LeaderboardModal from "../components/LeaderboardModal";
 import { useTheme } from "../context/ThemeContext";
 import { getDailyChallenge } from "../api";
 
@@ -33,6 +34,7 @@ const Challenge = ({ onBackToMenu, settings }) => {
     } = GameState(settings);
 
     const [showVictory, setShowVictory] = useState(false);
+    const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
     const [challengeLoaded, setChallengeLoaded] = useState(false);
 
     const [time, setTime] = useState(0);
@@ -105,6 +107,11 @@ const Challenge = ({ onBackToMenu, settings }) => {
             sourceCard
         );
 
+        if (true) {
+            setWinTime(time)
+            setShowVictory(true);
+        }
+
         if (checkWinCondition()) {
             setWinTime(time)
             setShowVictory(true);
@@ -138,6 +145,12 @@ const Challenge = ({ onBackToMenu, settings }) => {
                         <div className={`${theme.statsBar} px-4 py-2 rounded-lg shadow-md`}>
                             ⭐ Score: {score}
                         </div>
+                        <button
+                            onClick={() => setShowLeaderboardModal(true)}
+                            className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-md transition-colors flex items-center gap-2"
+                        >
+                            🏆 Leaderboard
+                        </button>
                         <ThemeSelector />
                     </div>
 
@@ -194,13 +207,18 @@ const Challenge = ({ onBackToMenu, settings }) => {
                     />
                 </div>
 
-                <VictoryModal
+                <ChallengeVictoryModal
                     isOpen={showVictory}
                     score={score}
                     moves={moves}
                     time={winTime}
                     onNewGame={handleNewGameWithReset}
                     onBackToMenu={onBackToMenu}
+                />
+
+                <LeaderboardModal
+                    isOpen={showLeaderboardModal}
+                    onClose={() => setShowLeaderboardModal(false)}
                 />
             </div>
         </DndContext>
