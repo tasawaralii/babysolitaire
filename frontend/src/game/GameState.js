@@ -508,6 +508,15 @@ export default function GameState(settings) {
       const cards = tableaus[i].toArray();
       for (let j = 0; j < cards.length; j++) {
         if (cards[j].faceUp) {
+
+          const revealsHiddenCard = j > 0 && !cards[j - 1].faceUp;
+          
+          const freesUpKing = cards[j].value === 13 && j > 0;
+
+          if (!revealsHiddenCard && !freesUpKing) {
+            continue; 
+          }
+
           for (let k = 0; k < 7; k++) {
             console.log("pile-to-pile");
 

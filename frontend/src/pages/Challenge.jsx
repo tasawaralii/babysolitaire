@@ -107,10 +107,10 @@ const Challenge = ({ onBackToMenu, settings }) => {
             sourceCard
         );
 
-        if (true) {
-            setWinTime(time)
-            setShowVictory(true);
-        }
+        // if (true) {
+        //     setWinTime(time)
+        //     setShowVictory(true);
+        // }
 
         if (checkWinCondition()) {
             setWinTime(time)

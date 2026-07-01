@@ -8,7 +8,7 @@ const Pile = ({ pile, pileIdx, hint }) => {
     id: `pile-${pileIdx}`,
     data: { destination: "pile", destinationIdx: pileIdx },
   });
-  const {theme} = useTheme();
+  const { theme } = useTheme();
 
   const cards = pile.toArray();
   const hasCards = cards.length > 0;
@@ -18,9 +18,8 @@ const Pile = ({ pile, pileIdx, hint }) => {
   return (
     <div
       ref={setNodeRef}
-      className={`relative w-20 transition-colors duration-200 ${
-        isOver ? "" : ""
-      }`}
+      className={`relative w-20 transition-colors duration-200 ${isOver ? "" : ""
+        }`}
       style={{ height: pileHeight }}
     >
       {/* Empty pile placeholder */}
@@ -51,7 +50,8 @@ const Pile = ({ pile, pileIdx, hint }) => {
                     hint.sourceIdx === pileIdx &&
                     hint.cardIdx === j) ||
                     (hint.destination === "pile" &&
-                      hint.destinationIdx === pileIdx))
+                      hint.destinationIdx === pileIdx &&
+                      j === cards.length - 1))
                 }
               />
             ) : (
