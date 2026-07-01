@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -15,55 +17,12 @@ from contextlib import asynccontextmanager
 
 from solver import SolitaireState, AISolver
 
+from schemas import DailyChallengePayload, ScoreSubmission, LeaderboardEntry
+from constants import SUITS, RANKS
+
+load_dotenv()
+
 limiter = Limiter(key_func=get_remote_address)
-
-class CardModel(BaseModel):
-    suit: str
-    value: str
-    rank: int
-    faceUp: bool
-    color: str
-    id: str
-
-
-class DailyChallengePayload(BaseModel):
-    challenge_id: str
-    tableau: List[List[CardModel]]
-    stock: List[CardModel]
-
-
-class ScoreSubmission(BaseModel):
-    challenge_id: str
-    username: str
-    time: int
-    moves: int
-    score: int
-
-
-class LeaderboardEntry(BaseModel):
-    username: str
-    time: int
-    moves: int
-    score: int
-    date: str
-
-
-SUITS = ["♠", "♥", "♦", "♣"]
-RANKS = [
-    {"value": "A", "rank": 1},
-    {"value": "2", "rank": 2},
-    {"value": "3", "rank": 3},
-    {"value": "4", "rank": 4},
-    {"value": "5", "rank": 5},
-    {"value": "6", "rank": 6},
-    {"value": "7", "rank": 7},
-    {"value": "8", "rank": 8},
-    {"value": "9", "rank": 9},
-    {"value": "10", "rank": 10},
-    {"value": "J", "rank": 11},
-    {"value": "Q", "rank": 12},
-    {"value": "K", "rank": 13},
-]
 
 leaderboard_db = []
 
@@ -151,9 +110,12 @@ app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+frontend_env = os.getenv("FRONTEND_DOMAIN", "http://localhost:5173")
+allowed_origins = [origin.strip() for origin in frontend_env.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
