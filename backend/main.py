@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -9,22 +9,13 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 import random
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from contextlib import asynccontextmanager
+
 from solver import SolitaireState, AISolver
 
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI()
-
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 class CardModel(BaseModel):
     suit: str
@@ -91,69 +82,108 @@ leaderboard_db = [
     },
 ]
 
+current_daily_seed = {
+    "date": None,
+    "payload": None
+}
 
-@app.get("/api/daily-challenge", response_model=DailyChallengePayload)
-def get_daily_challenge():
+def generate_daily_challenge():
+    """Runs at midnight to pre-compute and cache the next solvable board."""
+    global current_daily_seed
+    print("\n--- [SCHEDULER] Starting Daily AI Generation ---")
     
+    today_str = datetime.now().strftime('%Y-%m-%d')
     solver = AISolver(timeout_seconds=15.0)
-    MAX_ATTEMPTS = 10
+    MAX_ATTEMPTS = 30
+
+    global SUITS, RANKS
 
     for attempt in range(MAX_ATTEMPTS):
-        deck: List[CardModel] = []
-
+        deck = []
         for suit in SUITS:
             for rank_info in RANKS:
-                deck.append(
-                    CardModel(
-                        suit=suit,
-                        value=str(rank_info["value"]),
-                        rank=int(rank_info["rank"]),
-                        faceUp=False,
-                        color="red" if suit in ["♦", "♥"] else "black",
-                        id=f"{suit}-{rank_info['value']}",
-                    )
-                )
+                deck.append({
+                    "suit": suit,
+                    "value": str(rank_info["value"]),
+                    "rank": int(rank_info["rank"]),
+                    "faceUp": False,
+                    "color": "red" if suit in ["♦", "♥"] else "black",
+                    "id": f"{suit}-{rank_info['value']}"
+                })
 
         random.shuffle(deck)
 
         tableau = [[], [], [], [], [], [], []]
-
         for i in range(7):
             for j in range(i, 7):
                 card = deck.pop()
-                card.faceUp = i == j
+                card["faceUp"] = (i == j)
                 tableau[j].append(card)
 
         stock = deck[::-1]
 
-        # --- THE FIX: Convert heavy Pydantic models to lightweight dicts ---
-        # Note: If you are using Pydantic V2, you can also use card.model_dump()
-        solver_tableau = [[card.dict() for card in col] for col in tableau]
-        solver_stock = [card.dict() for card in stock]
-
         is_winnable = solver.is_solvable(
-            SolitaireState(solver_tableau, solver_stock, [], [[], [], [], []])
+            SolitaireState(tableau, stock, [], [[], [], [], []])
         )
 
         if is_winnable:
-            print(f"Solvable board found on attempt {attempt + 1}!")
-            return DailyChallengePayload(
-                challenge_id=f"daily-{datetime.now().strftime('%Y%m%d')}",
-                tableau=tableau, 
+            print(f"[SCHEDULER] Success! Solvable board locked in on attempt {attempt + 1}.")
+            
+            # Save to global cache
+            current_daily_seed["date"] = today_str
+            current_daily_seed["payload"] = DailyChallengePayload(
+                challenge_id=f"daily-{today_str}",
+                tableau=tableau,
                 stock=stock
             )
-        else:
-            print(f"Attempt {attempt + 1} unsolvable. Reshuffling...")
+            return
 
-    # Failsafe: If it times out 10 times, just return the last generated board
-    # so your frontend doesn't crash while testing.
-    print("Warning: Max attempts reached. Returning unverified board.")
-    return DailyChallengePayload(
-        challenge_id=f"daily-{datetime.now().strftime('%Y%m%d')}-unverified",
-        tableau=tableau, 
+    print("[SCHEDULER] WARNING: Failed to find a solvable board. Falling back to unverified.")
+    # Fallback just in case
+    current_daily_seed["date"] = today_str
+    current_daily_seed["payload"] = DailyChallengePayload(
+        challenge_id=f"daily-{today_str}-unverified",
+        tableau=tableau,
         stock=stock
     )
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(generate_daily_challenge, 'cron', hour=0, minute=0)
+    scheduler.start()
     
+    # Generate the first daily challenge immediately on startup
+    generate_daily_challenge()
+
+    yield
+
+    scheduler.shutdown()
+    
+    
+app = FastAPI(lifespan=lifespan)
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/daily-challenge", response_model=DailyChallengePayload)
+def get_daily_challenge():
+    global current_daily_seed
+    
+    if current_daily_seed["payload"] is None:
+
+        raise HTTPException(status_code=503, detail="Daily challenge is currently generating. Please try again in 10 seconds.")
+        
+    return current_daily_seed["payload"]
     
 @app.post("/api/daily-challenge/score", response_model=List[LeaderboardEntry])
 @limiter.limit("5/minute")
