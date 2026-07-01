@@ -1,10 +1,19 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 from datetime import datetime
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -95,7 +104,8 @@ def get_daily_challenge():
     )
     
 @app.post("/api/daily-challenge/score", response_model=List[LeaderboardEntry])
-def submit_score(submission: ScoreSubmission):
+@limiter.limit("5/minute")
+def submit_score(request: Request, submission: ScoreSubmission):
 
     new_entry = {
         "username": submission.username,
