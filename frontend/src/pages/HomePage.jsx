@@ -53,7 +53,7 @@ const HomePage = ({ onStartGame, onStartChallenge }) => {
         </div>
 
         <p className="mt-8 sm:mt-12 text-green-300 text-xs sm:text-sm">
-          Baby Solitaire • Made with ❤️ by babyxboss
+          BabySolitaire • Made with <a href="https://github.com/tasawaralii" className="underline hover:text-yellow-300">Tasawar Ali</a>
         </p>
       </div>
 
