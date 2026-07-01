@@ -65,22 +65,7 @@ RANKS = [
     {"value": "K", "rank": 13},
 ]
 
-leaderboard_db = [
-    {
-        "username": "Tasawar (Creator)",
-        "time": 145,
-        "moves": 92,
-        "score": 500,
-        "date": "2026-07-01",
-    },
-    {
-        "username": "UET_Challenger",
-        "time": 190,
-        "moves": 110,
-        "score": 420,
-        "date": "2026-07-01",
-    },
-]
+leaderboard_db = []
 
 current_daily_seed = {
     "date": None,
@@ -89,14 +74,14 @@ current_daily_seed = {
 
 def generate_daily_challenge():
     """Runs at midnight to pre-compute and cache the next solvable board."""
-    global current_daily_seed
+    global current_daily_seed, leaderboard_db, SUITS, RANKS
     print("\n--- [SCHEDULER] Starting Daily AI Generation ---")
     
     today_str = datetime.now().strftime('%Y-%m-%d')
+    leaderboard_db.clear()
+    
     solver = AISolver(timeout_seconds=15.0)
     MAX_ATTEMPTS = 30
-
-    global SUITS, RANKS
 
     for attempt in range(MAX_ATTEMPTS):
         deck = []

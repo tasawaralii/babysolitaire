@@ -37,6 +37,7 @@ const Challenge = ({ onBackToMenu, settings }) => {
     const [showVictory, setShowVictory] = useState(false);
     const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
     const [challengeLoaded, setChallengeLoaded] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("Fetching today's challenge...");
 
     const [time, setTime] = useState(0);
     const [winTime, setWinTime] = useState(0);
@@ -57,6 +58,21 @@ const Challenge = ({ onBackToMenu, settings }) => {
     useEffect(() => {
         fetchDailyChallenge()
     }, []);
+
+    useEffect(() => {
+        if (challengeLoaded) return;
+
+        setLoadingMessage("Fetching today's challenge...");
+
+        const timeouts = [
+            setTimeout(() => setLoadingMessage("Shuffling the deck..."), 3000),
+            setTimeout(() => setLoadingMessage("Waking up the backend server (this might take up to 30s)..."), 7000),
+            setTimeout(() => setLoadingMessage("Verifying winnability with A* Search Algorithm..."), 15000),
+            setTimeout(() => setLoadingMessage("Almost there, arranging the tableau..."), 25000)
+        ];
+
+        return () => timeouts.forEach(clearTimeout);
+    }, [challengeLoaded]);
 
     useEffect(() => {
         if (!challengeLoaded) return;
@@ -157,9 +173,11 @@ const Challenge = ({ onBackToMenu, settings }) => {
                     </div>
 
                     {!challengeLoaded ?
-                        <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-yellow-500"></div>
-                            <span className="ml-4">Loading Daily Challenge...</span>
+                        <div className="flex flex-col justify-center items-center h-64 gap-4 px-4 text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-4 border-b-4 border-yellow-500"></div>
+                            <span className="text-sm sm:text-lg font-semibold text-yellow-100 animate-pulse">
+                                {loadingMessage}
+                            </span>
                         </div>
                         :
                         <>
