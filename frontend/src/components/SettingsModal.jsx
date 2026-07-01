@@ -3,8 +3,7 @@ import { useTheme } from "../context/ThemeContext";
 
 const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
   const [localSettings, setLocalSettings] = useState(settings);
-  const { changeTheme, currentTheme, allThemes } = useTheme();
-
+  const { currentTheme } = useTheme();
 
   if (!isOpen) return null;
 
@@ -15,7 +14,9 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn flex items-center justify-center z-50 p-4">
-      <div className="bg-linear-to-br from-green-800 to-green-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 border-4 border-yellow-600">
+      <div
+        className={`bg-linear-to-br ${currentTheme.background} rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 border-4 ${currentTheme.cardBackBorder}`}
+      >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-yellow-100">
@@ -31,8 +32,9 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
         {/* Settings Content */}
         <div className="space-y-6">
           {/* Draw Settings */}
-
-          <div className="bg-green-900 rounded-lg p-5 border-2 border-green-700">
+          <div
+            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+          >
             <h3 className="text-xl font-bold text-yellow-300 mb-4">
               🎴 Draw Settings
             </h3>
@@ -55,7 +57,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       drawCount: Number(e.target.value),
                     })
                   }
-                  className="w-full h-2 bg-green-700 rounded-lg appearance-none cursor-pointer accent-yellow-400"
+                  className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-yellow-400 bg-black/30"
                 />
 
                 <p className="text-yellow-300 text-lg font-bold text-center mt-2">
@@ -63,7 +65,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                   {localSettings.drawCount === 1 ? "card" : "cards"}
                 </p>
 
-                <p className="text-green-300 text-sm mt-1 text-center">
+                <p className="text-white/70 text-sm mt-1 text-center">
                   Customize the number of Cards draw at a time
                 </p>
               </div>
@@ -71,7 +73,9 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
           </div>
 
           {/* Scoring Settings */}
-          <div className="bg-green-900 rounded-lg p-5 border-2 border-green-700">
+          <div
+            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+          >
             <h3 className="text-xl font-bold text-yellow-300 mb-4">
               ⭐ Scoring
             </h3>
@@ -92,7 +96,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className="w-20 px-3 py-1 bg-green-700 text-white rounded border border-green-600"
+                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
@@ -111,7 +115,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className="w-20 px-3 py-1 bg-green-700 text-white rounded border border-green-600"
+                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
@@ -130,7 +134,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className="w-20 px-3 py-1 bg-green-700 text-white rounded border border-green-600"
+                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
@@ -149,7 +153,7 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className="w-20 px-3 py-1 bg-green-700 text-white rounded border border-green-600"
+                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
 
@@ -170,14 +174,16 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                       },
                     })
                   }
-                  className="w-20 px-3 py-1 bg-green-700 text-white rounded border border-green-600"
+                  className={`w-20 px-3 py-1 bg-black/30 text-white rounded border ${currentTheme.emptyPileBorder}`}
                 />
               </div>
             </div>
           </div>
 
           {/* Game Rules */}
-          <div className="bg-green-900 rounded-lg p-5 border-2 border-green-700">
+          <div
+            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+          >
             <h3 className="text-xl font-bold text-yellow-300 mb-4">
               📋 Game Rules
             </h3>
@@ -212,41 +218,13 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
                 />
                 <span>Timed Game</span>
               </label>
-
-              {/* <label className="flex items-center gap-3 text-white cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={localSettings.vegasScoring}
-                  onChange={(e) =>
-                    setLocalSettings({
-                      ...localSettings,
-                      vegasScoring: e.target.checked,
-                    })
-                  }
-                  className="w-5 h-5 rounded"
-                />
-                <span>Vegas Scoring Mode</span>
-              </label> */}
-
-              {/* <label className="flex items-center gap-3 text-white cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={localSettings.soundEffects}
-                  onChange={(e) =>
-                    setLocalSettings({
-                      ...localSettings,
-                      soundEffects: e.target.checked,
-                    })
-                  }
-                  className="w-5 h-5 rounded"
-                />
-                <span>Sound Effects</span>
-              </label> */}
             </div>
           </div>
 
           {/* Difficulty Preset */}
-          <div className="bg-green-900 rounded-lg p-5 border-2 border-green-700">
+          <div
+            className={`${currentTheme.foundation} rounded-lg p-5 border-2`}
+          >
             <h3 className="text-xl font-bold text-yellow-300 mb-4">
               🎯 Difficulty Presets
             </h3>
@@ -291,30 +269,6 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
           </div>
         </div>
 
-        <div className="bg-green-900 rounded-lg p-5 border-2 border-green-700">
-          <h3 className="text-xl font-bold text-yellow-300 mb-4">🎨 Theme</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {Object.entries(allThemes).map(([key, themeOption]) => (
-              <button
-                key={key}
-                onClick={() => changeTheme(key)}
-                className={`px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
-                  currentTheme === key
-                    ? "bg-yellow-500 text-gray-900 border-yellow-400"
-                    : "bg-green-700 text-white hover:bg-green-600 border-green-600"
-                }`}
-              >
-                <div
-                  className={`w-full h-8 rounded mb-2 bg-gradient-to-r ${themeOption.background}`}
-                ></div>
-                {themeOption.name}
-              </button>
-            ))}
-          </div>
-          <p className="text-green-300 text-sm mt-2">
-            Theme changes instantly!
-          </p>
-        </div>
         {/* Action Buttons */}
         <div className="flex gap-4 mt-8">
           <button
@@ -335,4 +289,4 @@ const SettingsModal = ({ isOpen, onClose, onSave, settings }) => {
   );
 };
 
-export default SettingsModal
+export default SettingsModal;

@@ -1,7 +1,7 @@
 import ThemeSelector from "../components/ThemeSelector";
 import { useTheme } from "../context/ThemeContext";
 
-const HomePage = ({ onStartGame, onShowSettings , onStartChallenge}) => {
+const HomePage = ({ onStartGame , onStartChallenge}) => {
   const {theme} = useTheme()
   return (
     <div className={`min-h-screen bg-linear-to-br ${theme.background} flex items-center justify-center p-6`}>
@@ -48,12 +48,6 @@ const HomePage = ({ onStartGame, onShowSettings , onStartChallenge}) => {
             🎯 Daily Challenge
           </button>
 
-          <button
-            onClick={onShowSettings}
-            className="w-64 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xl rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
-          >
-            ⚙️ Settings
-          </button>
         </div>
 
         <p className="mt-12 text-green-300 text-sm">

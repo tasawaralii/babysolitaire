@@ -17,7 +17,7 @@ function App() {
   const [challengeStarted, setChallengeStarted] = useState(false);
 
   const onStartGame = () => {
-    setGameStarted(true);
+    setShowSettings(true);
   };
   
   const onStartChallenge = () => {
@@ -27,9 +27,6 @@ function App() {
   const onBackToMenu = () => {
     setGameStarted(false);
     setChallengeStarted(false);
-  };
-  const onShowSettings = () => {
-    setShowSettings(true);
   };
 
   const onSettingsSave = (newGameSettings) => {
@@ -50,7 +47,6 @@ function App() {
               <HomePage
                 onStartGame={onStartGame}
                 onStartChallenge={onStartChallenge}
-                onShowSettings={onShowSettings}
               />
               {showSettings && (
                 <SettingsModal
