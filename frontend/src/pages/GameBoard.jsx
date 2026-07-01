@@ -102,7 +102,7 @@ const GameBoard = ({ onBackToMenu, settings }) => {
         <div className="max-w-7xl mx-auto">
           
 
-          <h1 className="text-2xl sm:text-4xl font-bold text-center mb-4 sm:mb-6 text-yellow-100 drop-shadow-lg">
+         <h1 className="text-3xl sm:text-4xl md:text-5xl font-chewy tracking-wide text-center mb-4 sm:mb-6 text-yellow-100 drop-shadow-lg">
             Baby Solitaire
           </h1>
 

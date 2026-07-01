@@ -129,12 +129,10 @@ const Challenge = ({ onBackToMenu, settings }) => {
             <div className={`min-h-screen bg-linear-to-br ${theme.background} p-2 sm:p-6 text-white overflow-x-hidden`}>
                 <div className="max-w-7xl mx-auto">
 
-                    {/* MATCHED GameBoard.jsx: Responsive heading */}
-                    <h1 className="text-2xl sm:text-4xl font-bold text-center mb-4 sm:mb-6 text-yellow-100 drop-shadow-lg">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-chewy tracking-wide text-center mb-4 sm:mb-6 text-yellow-100 drop-shadow-lg">
                         Baby Solitaire
                     </h1>
 
-                    {/* MATCHED GameBoard.jsx: Responsive Stats Bar with flex-wrap and px-1 */}
                     <div className="flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 mb-4 sm:mb-6 text-xs sm:text-sm md:text-lg font-semibold px-1">
                         <div className={`${theme.statsBar} px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md flex items-center`}>
                             ⏱️ {Math.floor(time / 60)}:{("0" + (time % 60)).slice(-2)}
@@ -146,7 +144,7 @@ const Challenge = ({ onBackToMenu, settings }) => {
                             ⭐ Score: {score}
                         </div>
 
-                        {/* Styled the leaderboard button to match the ThemeSelector height/padding */}
+
                         <button
                             onClick={() => setShowLeaderboardModal(true)}
                             className="bg-yellow-600 hover:bg-yellow-500 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-base"
@@ -165,7 +163,8 @@ const Challenge = ({ onBackToMenu, settings }) => {
                         </div>
                         :
                         <>
-                            {/* MATCHED GameBoard.jsx: w-full justify-between and removed flex-wrap */}
+                           
+                           
                             <div className="flex w-full justify-between items-start mb-6 sm:mb-8 max-w-6xl mx-auto px-1 sm:px-2">
 
                                 <Stock
@@ -175,7 +174,7 @@ const Challenge = ({ onBackToMenu, settings }) => {
                                     hint={hint}
                                 />
 
-                                {/* MATCHED GameBoard.jsx: gap-1 sm:gap-2 md:gap-3 */}
+
                                 <div className="flex gap-1 sm:gap-2 md:gap-3">
                                     {foundations.map((foundation, i) => (
                                         <Foundation
@@ -189,7 +188,7 @@ const Challenge = ({ onBackToMenu, settings }) => {
                                 </div>
                             </div>
 
-                            {/* MATCHED GameBoard.jsx: gap-1 sm:gap-2 md:gap-4 */}
+
                             <div className="flex justify-center gap-1 sm:gap-2 md:gap-4 mb-6 px-1">
                                 {tableaus.map((pile, i) => (
                                     <Pile key={i} pile={pile} pileIdx={i} hint={hint} />

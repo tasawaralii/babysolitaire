@@ -14,7 +14,7 @@ const HomePage = ({ onStartGame, onStartChallenge }) => {
 
       <div className="text-center w-full max-w-md">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-yellow-100 drop-shadow-2xl mb-3 sm:mb-4 animate-pulse leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-chewy tracking-wide text-yellow-100 drop-shadow-2xl mb-3 sm:mb-4 animate-pulse leading-tight">
             Baby Solitaire
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-green-200 italic">
