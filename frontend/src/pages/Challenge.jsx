@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// Added useSensor, useSensors, MouseSensor, TouchSensor imports
 import { DndContext, useSensor, useSensors, MouseSensor, TouchSensor } from "@dnd-kit/core";
 import Pile from "../components/Pile";
 import Foundation from "../components/Foundation";

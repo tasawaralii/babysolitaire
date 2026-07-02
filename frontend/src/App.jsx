@@ -41,7 +41,7 @@ function App() {
           {gameStarted ? (
             <GameBoard settings={gameSettings} onBackToMenu={onBackToMenu} />
           ) : challengeStarted ? (
-            <Challenge onBackToMenu={onBackToMenu} settings={gameSettings} />
+            <Challenge onBackToMenu={onBackToMenu} settings={DEFAULT_SETTINGS} />
           ) : (
             <>
               <HomePage
