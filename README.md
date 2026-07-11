@@ -1,6 +1,6 @@
 # Baby Solitaire 🃏
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://babysolitaire.pages.dev/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://babysolitaire.vercel.app/)
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=flat&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -9,7 +9,7 @@
 
 A full-stack implementation of the classic Solitaire (Klondike) card game. This project was built from scratch to demonstrate a deep understanding of Data Structures and Algorithms (DSA), featuring custom-built data structures on the frontend and an A* Search AI solver on the backend.
 
-**🔗 Play the live game here:** [https://babysolitaire.pages.dev/](https://babysolitaire.pages.dev/)
+**🔗 Play the live game here:** [https://babysolitaire.vercel.app/](https://babysolitaire.vercel.app/)
 
 ## ✨ Core Engineering Features
 
